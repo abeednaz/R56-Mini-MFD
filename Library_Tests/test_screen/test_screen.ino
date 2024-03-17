@@ -3,10 +3,18 @@
 #include "GUI_Paint.h"
 #include "image.h"
 
-#define ORANGE_FG 0xFBE5
-#define ORANGE_BG 0x8000
+#include "GaugePainter.h"
 
 // #define DEFAULT_PROGRAM
+// #define GAUGE_TEST
+// #define COLOR_TEST
+#define GAUGE_LIB_TEST
+
+// defined in library, don't redefine
+#ifndef GAUGE_LIB_TEST
+#define ORANGE_FG 0xFA00 // HSL 16 100 49
+#define ORANGE_BG 0x80A0 // HSL 11 100 25
+#endif // NOT GAUGE_LIB_TEST
 
 #ifdef DEFAULT_PROGRAM
 void setup()
@@ -35,7 +43,7 @@ void setup()
 
 #endif // DEFAULT_PROGRAM
 
-#ifndef DEFAULT_PROGRAM
+#ifdef GAUGE_TEST
 
 void setup()
 {
@@ -46,6 +54,7 @@ void setup()
   // Paint_DrawRectangle(125, 10, 225, 58, 0xD2C4,  DOT_PIXEL_2X2,DRAW_FILL_FULL);
   Paint_DrawCircle((LCD_WIDTH / 2) + 1, (LCD_WIDTH / 2) + 2, (LCD_WIDTH / 2) - 1, ORANGE_BG, DOT_PIXEL_1X1, DRAW_FILL_FULL);
   // Paint_DrawRectangle(100, 100, 164, 164, ORANGE_FG,  DOT_PIXEL_2X2, DRAW_FILL_FULL);
+  Paint_DrawImage(gImage_oil_icon, 78, 193, 84, 34); 
   Paint_DrawImage(gImage_index_8B, 15, 149, 50, 40); 
   Paint_DrawImage(gImage_index_9B, 4, 108, 51, 27); 
   Paint_DrawImage(gImage_index_10B, 16, 55, 49, 39); 
@@ -71,15 +80,74 @@ void setup()
   Paint_DrawImage(gImage_index_10O, 16-1, 55, 49, 39); 
   Paint_DrawImage(gImage_index_9O, 4-1, 108, 51, 27); 
   Paint_DrawImage(gImage_index_8O, 15-1, 149, 50, 40); 
+
+  analogWrite(DEV_BL_PIN, 100);
+  delay(1000);
+  analogWrite(DEV_BL_PIN, 0);
+  delay(1000);
+  analogWrite(DEV_BL_PIN, 255);
+  delay(1000);
+  analogWrite(DEV_BL_PIN, 50);
   // Paint_NewImage(LCD_WIDTH, LCD_HEIGHT, 0, BLUE);
 }
 
-#endif // NOT DEFAULT_PROGRAM
+#endif // GAUGE_TEST
 
+#ifdef GAUGE_LIB_TEST
+void setup()
+{
+  Gauge g;
+  g.begin();
+  // for (int i = 1; i < 10; i++){
+  //   if (i < 6) g.paintIndex(i, INDEX_ON);
+  //   else g.paintIndex(i, INDEX_OFF);
+  // } 
+  g.paintIndices(1, 9, INDEX_OFF);
+  g.paintIndices(1, 5, INDEX_ON);
+  g.paintIndices(6, 9, INDEX_OFF);
+
+}
+
+#endif // GAUGE_LIB_TEST
+
+#ifdef COLOR_TEST
+
+void setup()
+{
+  Serial.begin(115200);
+  Config_Init();
+  LCD_Init();
+  LCD_Clear(BLACK);
+  Paint_NewImage(LCD_WIDTH, LCD_HEIGHT, ROTATE_180, WHITE);
+  // Paint_DrawRectangle(125, 10, 225, 58, 0xD2C4,  DOT_PIXEL_2X2,DRAW_FILL_FULL);
+  LCD_Clear(ORANGE_BG);
+  Paint_DrawCircle((LCD_WIDTH / 3) + 1, (LCD_WIDTH / 3) + 2, (LCD_WIDTH / 3) - 1, ORANGE_FG, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+  
+}
+
+void loop()
+{
+  static int lastVal = 0;
+  int backlightVal = Serial.parseInt();
+  if (backlightVal > 255) backlightVal = 255;
+  if (backlightVal < 0) backlightVal = 0;
+  
+  if (lastVal != backlightVal && backlightVal != 0) {
+    Serial.println(backlightVal);
+    analogWrite(DEV_BL_PIN, backlightVal);
+  }
+
+  lastVal = backlightVal;
+}
+#endif // COLOR_TEST
+
+
+#ifndef COLOR_TEST
 void loop()
 {
   
 }
+#endif // NOT COLOR_TEST
 
 
 

@@ -12,5 +12,6 @@ extern PROGMEM const unsigned char gImage_index_11B[];
 extern PROGMEM const unsigned char gImage_index_11O[];
 extern PROGMEM const unsigned char gImage_index_12B[];
 extern PROGMEM const unsigned char gImage_index_12O[];
+extern PROGMEM const unsigned char gImage_oil_icon[];
 
 #endif
