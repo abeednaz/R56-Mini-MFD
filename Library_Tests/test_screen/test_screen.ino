@@ -105,7 +105,16 @@ void setup()
   g.paintIndices(1, 9, INDEX_OFF);
   g.paintIndices(1, 5, INDEX_ON);
   g.paintIndices(6, 9, INDEX_OFF);
-
+  g.paintIcon(COOLANT_ICON);
+  delay(1000);
+  g.clearIcon();
+  delay(1000);
+  g.paintIcon(OIL_ICON);
+  g.paintUnit(UNIT_CELCIUS);
+  delay(1000);
+  g.clearIcon();
+  g.paintIcon(TURBO_ICON);
+  g.paintUnit(UNIT_PSI);
 }
 
 #endif // GAUGE_LIB_TEST

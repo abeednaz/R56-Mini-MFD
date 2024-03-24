@@ -20,16 +20,36 @@
 #define INDEX_OFF 0
 #define NUM_INDICES 9
 
+#define COOLANT_ICON 0
+#define OIL_ICON 1
+#define TURBO_ICON 2
+
+#define UNIT_CELCIUS 0
+#define UNIT_PSI 1
+
+typedef enum
+{
+  COOLANT_TEMP,
+  OIL_TEMP,
+  OIL_PRESS,
+  BOOST_PRESS,
+  G_METER
+} GaugeType;
+
 class Gauge
 {
   private:
     char _gaugeState[NUM_INDICES];
+    GaugeType _gaugeType;
   public:
     Gauge();
     void begin();
     void paintIndex(char index, char state);
     void paintIndices(char startIndex, char endIndex, char state);
-    void paintIcon(char icon, char color);
+    void paintIcon(char icon);
+    void paintUnit(char unit);
+    void clearUnit();
+    void clearIcon();
 };
 
 #endif // GAUGE_PAINTER_H
