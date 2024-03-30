@@ -27,6 +27,18 @@
 #define UNIT_CELCIUS 0
 #define UNIT_PSI 1
 
+#define CTEMP_MIN 10
+#define CTEMP_MAX 170
+
+#define OTEMP_MIN 10
+#define OTEMP_MAX 150
+
+#define OPRESS_MIN 9
+#define OPRESS_MAX 99
+
+#define BPRESS_MIN 0
+#define BPRESS_MAX 12
+
 typedef enum
 {
   COOLANT_TEMP,
@@ -36,20 +48,33 @@ typedef enum
   G_METER
 } GaugeType;
 
+typedef struct
+{
+  int upperLim;
+  int lowerLim;
+} Limits;
+
 class Gauge
 {
   private:
     char _gaugeState[NUM_INDICES];
     GaugeType _gaugeType;
+    Limits _limits;
   public:
     Gauge();
     void begin();
+    void setType(GaugeType type);
+    GaugeType getType();
+    void paintGauge(int value);
+    void paintValue(int value);
     void paintIndex(char index, char state);
     void paintIndices(char startIndex, char endIndex, char state);
     void paintIcon(char icon);
     void paintUnit(char unit);
-    void clearUnit();
     void clearIcon();
+    void clearNumber();
+    void getLimits(int lims[2]);
+    void printDebugMsg(String s, int row);
 };
 
 #endif // GAUGE_PAINTER_H

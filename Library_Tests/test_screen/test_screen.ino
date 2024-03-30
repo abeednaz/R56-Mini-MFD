@@ -102,19 +102,42 @@ void setup()
   //   if (i < 6) g.paintIndex(i, INDEX_ON);
   //   else g.paintIndex(i, INDEX_OFF);
   // } 
-  g.paintIndices(1, 9, INDEX_OFF);
-  g.paintIndices(1, 5, INDEX_ON);
-  g.paintIndices(6, 9, INDEX_OFF);
-  g.paintIcon(COOLANT_ICON);
+  // g.paintIndices(1, 9, INDEX_OFF);
+  // g.paintIndices(1, 5, INDEX_ON);
+  // g.paintIndices(6, 9, INDEX_OFF);
+  
+  int limits[2];
+
   delay(1000);
-  g.clearIcon();
-  delay(1000);
-  g.paintIcon(OIL_ICON);
-  g.paintUnit(UNIT_CELCIUS);
-  delay(1000);
-  g.clearIcon();
-  g.paintIcon(TURBO_ICON);
-  g.paintUnit(UNIT_PSI);
+  // g.setType(COOLANT_TEMP);
+  g.getLimits(limits);
+  g.setType(OIL_TEMP);
+
+  for (int i = 0; i < 255; i+=3){
+    g.paintGauge(i);
+    g.paintValue(i);
+    delay(150);
+  }
+
+  // g.printDebugMsg(String(limits[0]), 0);
+  // g.printDebugMsg(String(limits[1]), 1);
+
+  delay(2000);
+  g.setType(BOOST_PRESS);
+  delay(2000);
+  g.setType(OIL_TEMP);
+  delay(2000);
+  g.setType(OIL_PRESS);
+  delay(2000);
+  
+  // g.clearIcon();
+  // delay(1000);
+  // g.paintIcon(OIL_ICON);
+  // g.paintUnit(UNIT_CELCIUS);
+  // delay(1000);
+  // g.clearIcon();
+  // g.paintIcon(TURBO_ICON);
+  // g.paintUnit(UNIT_PSI);
 }
 
 #endif // GAUGE_LIB_TEST
