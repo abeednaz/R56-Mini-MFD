@@ -22,6 +22,20 @@ Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 float p = 3.1415926;
 
+// array to reference digits while printing
+const uint16_t * const gImage_digits[] = {
+    gImage_digit_0,
+    gImage_digit_1,
+    gImage_digit_2,
+    gImage_digit_3,
+    gImage_digit_4,
+    gImage_digit_5,
+    gImage_digit_6,
+    gImage_digit_7,
+    gImage_digit_8,
+    gImage_digit_9,
+};
+
 void setup(void) {
   Serial.begin(9600);
   Serial.print(F("Hello! ST77xx TFT Test"));
@@ -55,6 +69,59 @@ void setup(void) {
   tft.drawRGBBitmap(16, 55, gImage_index_10off, 49, 39);
   tft.drawRGBBitmap(53, 17, gImage_index_11off, 40, 50);
   tft.drawRGBBitmap(107, 5, gImage_index_12off, 26, 52);
+  tft.drawRGBBitmap(240-53-40, 17, gImage_index_1off, 40, 50);
+  tft.drawRGBBitmap(240-16-49, 55, gImage_index_2off, 49, 39);
+  tft.drawRGBBitmap(240-4-51, 108, gImage_index_3off, 51, 27);
+  tft.drawRGBBitmap(240-15-50, 149, gImage_index_4off, 50, 40);
+
+  // number print test
+  // draw number 215
+  int value = 215;
+  int yStart = 96;
+  int xStart[3] = { 0, 0, 0 };
+  int digits[3] = { 0, 0, 0 };
+  xStart[0] = 86;
+  xStart[1] = 109;
+  xStart[2] = 132;
+  digits[0] = value / 100;
+  digits[1] = (value % 100) / 10;
+  digits[2] = value % 10;
+  tft.drawRGBBitmap(xStart[0], yStart, gImage_digits[digits[0]], 21, 49);
+  tft.drawRGBBitmap(xStart[1], yStart, gImage_digits[digits[1]], 21, 49);
+  tft.drawRGBBitmap(xStart[2], yStart, gImage_digits[digits[2]], 21, 49);
+
+  // clear the number after a second
+  delay(1000);
+  tft.drawRGBBitmap(86, 96, gImage_text_block, 67, 49);
+
+  // draw a new number
+  value = 89;
+  xStart[0] = 98;
+  xStart[1] = 121;
+  digits[1] = value / 10;
+  digits[2] = value % 10;
+  tft.drawRGBBitmap(xStart[0], yStart, gImage_digits[digits[1]], 21, 49);
+  tft.drawRGBBitmap(xStart[1], yStart, gImage_digits[digits[2]], 21, 49);
+
+  // icon print test
+  tft.drawRGBBitmap(91, 177, gImage_icon_ktemp, 58, 52);
+  delay(1000);
+
+  // clear and draw new icon
+  tft.drawRGBBitmap(79, 166, gImage_icon_block, 82, 68);
+  tft.drawRGBBitmap(79, 199, gImage_icon_oil, 82, 32);
+  delay(1000);
+
+  // clear and draw new icon
+  tft.drawRGBBitmap(79, 166, gImage_icon_block, 82, 68);
+  tft.drawRGBBitmap(98, 194, gImage_icon_boost, 44, 40);
+  delay(1000);
+
+  // units print test
+  tft.drawRGBBitmap(107, 166, gImage_unit_celcius, 26, 24);
+  delay(1000);
+  tft.drawRGBBitmap(107, 166, gImage_unit_PSI, 26, 24);
+  delay(1000);
 
   Serial.println("done");
   delay(1000);

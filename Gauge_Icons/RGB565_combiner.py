@@ -30,11 +30,12 @@ def shuffleBytes(inputList):
   return inputList
 
 
-filesList = ["digit_0.c", "digit_1.c", "digit_2.c", "digit_3.c", "digit_4.c", 
-"digit_5.c", "digit_6.c", "digit_7.c", "digit_8.c", "digit_9.c", "icon_Ctemp.c", "icon_block.c", "icon_boost.c", 
-"icon_oil.c", "index_10off.c", "index_10on.c", "index_11off.c", "index_11on.c", "index_12off.c", 
-"index_12on.c", "index_8off.c", "index_8on.c", "index_9off.c", "index_9on.c", "text_block.c", "unit_PSI.c", 
-"unit_celcius.c"]
+filesList = ["digit_0.c", "digit_1.c", "digit_2.c", "digit_3.c", "digit_4.c",  "digit_5.c",
+"digit_6.c", "digit_7.c", "digit_8.c", "digit_9.c", "icon_Ctemp.c", "icon_block.c", "icon_boost.c", 
+"icon_oil.c", "index_8off.c", "index_8on.c", "index_9off.c", "index_9on.c", "index_10off.c",
+"index_10on.c", "index_11off.c", "index_11on.c", "index_12off.c",  "index_12on.c", "index_1off.c",
+"index_1on.c", "index_2off.c", "index_2on.c", "index_3off.c", "index_3on.c", "index_4off.c",
+"index_4on.c", "text_block.c", "unit_PSI.c",  "unit_celcius.c"]
 
 # For testing one file at a time
 # filesList = ["digit_9.c"]
