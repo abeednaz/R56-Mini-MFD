@@ -17,19 +17,19 @@ GaugeType type;
 
 void setup(void) {
   myGauge.begin(240, 320);
-  myGauge.setType(GaugeType(COOLANT_TEMP));
-  delay(1000);
-  myGauge.setType(GaugeType(OIL_TEMP));
-  delay(1000);
-  myGauge.setType(GaugeType(OIL_PRESS));
-  delay(1000);
-  myGauge.setType(GaugeType(BOOST_PRESS));
-  delay(1000);
+  // myGauge.setType(GaugeType(COOLANT_TEMP));
+  // delay(1000);
+  // myGauge.setType(GaugeType(OIL_TEMP));
+  // delay(1000);
+  // myGauge.setType(GaugeType(OIL_PRESS));
+  // delay(1000);
+  // myGauge.setType(GaugeType(BOOST_PRESS));
+  // delay(1000);
 
-  for(int i = 0; i < 250; i+=1){
-    myGauge.paintValue(i);
-    delay(50);
-  }
+  // for(int i = 1; i < 250; i+=3){
+  //   myGauge.paintValue(i);
+  //   delay(100);
+  // }
 }
 
 void loop() {
@@ -43,6 +43,15 @@ void loop() {
   //   delay(500);
   // }
   // delay(1000);
+  for(int i = 1; i < 250; i+=3){
+    myGauge.paintValue(i);
+    delay(100);
+  }
+  for(int i = 250; i > 1; i-=3){
+    myGauge.paintValue(i);
+    delay(100);
+  }
+
   
 }
 

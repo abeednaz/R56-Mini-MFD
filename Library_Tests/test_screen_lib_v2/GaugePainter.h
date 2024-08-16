@@ -24,7 +24,7 @@
 #include <SPI.h>
 
 #define ORANGE_FG 0xFA00 // HSL 16 100 49
-#define ORANGE_BG 0x80A0 // HSL 11 100 25
+#define ORANGE_BG 0x80C0 // HSL 11 100 25
 #define INDEX_ON 1
 #define INDEX_OFF 0
 #define INDEX_CLEAR 2
@@ -68,8 +68,9 @@ typedef struct
 class Gauge
 {
   private:
-    Adafruit_ST7789 tft;
+    Adafruit_ST7789 _tft;
     char _gaugeState[NUM_INDICES];
+    int _gaugeValue[3];
     GaugeType _gaugeType;
     Limits _limits;
   public:
@@ -87,7 +88,7 @@ class Gauge
     void clearUnit();
     void clearNumber();
     void getLimits(int lims[2]);
-    void printDebugMsg(String s, int row);
+    void printDebugMsg(String s);
     void startupAnimation();
 };
 
