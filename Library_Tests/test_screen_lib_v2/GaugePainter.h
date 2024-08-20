@@ -19,7 +19,7 @@
 
 #include <Arduino.h>
 #include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
+// #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
 
@@ -65,19 +65,38 @@ typedef struct
   int lowerLim;
 } Limits;
 
+// Data type to update the gauge from external driver code
+typedef struct
+{
+  // Main Gauge values
+  int CoolantTemp = 0;
+  int OilTemp = 0;
+  int OilPress = 0;
+  int BoostPress = 0;
+
+  // Trip Insights statistics
+  int DriveCycleTime_sec = 0;
+  float DriveCycleDist_mi = 0;
+  float DriveCycleFuelUsage = 0;
+
+  // IMU values (not yet implemented)
+  float X_accel = 0; 
+  float Y_accel = 0; 
+  float Z_accel = 0;
+} GaugeData;
+
 class Gauge
 {
   private:
-    Adafruit_ST7789 _tft;
-    char _gaugeState[NUM_INDICES];
-    int _gaugeValue[3];
-    GaugeType _gaugeType;
-    Limits _limits;
-  public:
-    Gauge(int TFT_CS, int TFT_DC, int TFT_RST);
-    void begin(int xSize, int ySize);
-    void setType(GaugeType type);
-    GaugeType getType();
+    // Necessary variables
+    Adafruit_ST7789 _tft; // TFT screen object
+    char _gaugeState[NUM_INDICES]; // Gauge state - how many indices are lit
+    int _gaugeValue[3]; // Gauge value - printed value, up to 3 digits
+    int _gaugeValue_raw; // Raw gauge value
+    GaugeType _gaugeType; // Type of gauge
+    Limits _limits; // Integer limits of gauge
+    GaugeData _data; // Data struct for gauge
+
     void paintGauge(int value);
     void paintValue(int value);
     void paintIndex(char index, char state);
@@ -90,6 +109,14 @@ class Gauge
     void getLimits(int lims[2]);
     void printDebugMsg(String s);
     void startupAnimation();
+
+  public:
+    Gauge(int TFT_CS, int TFT_DC, int TFT_RST);
+    void begin(int xSize, int ySize);
+    void setType(GaugeType type);
+    GaugeType getType();
+    int updateGauge(GaugeData data);
+    
 };
 
 #endif // GAUGE_PAINTER_H

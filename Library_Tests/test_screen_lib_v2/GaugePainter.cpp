@@ -32,9 +32,6 @@ const uint16_t* const gImage_digits[] = {
   gImage_digit_9,
 };
 
-// const unsigned char *digits = {&gImage_digit_0,
-//                                 &gImage_digit_1 };
-
 // Gauge object constructor
 // Parameters: none
 // Returns: none
@@ -61,6 +58,50 @@ void Gauge::begin(int xSize, int ySize) {
   startupAnimation();
 }
 
+// Gauge.updateGauge()
+// Parameters: GaugeData with all parameters
+// Returns: 0 during successful update, 1 otherwise
+// 
+// updateGauge() accepts a GaugeData parameter and updates the internal Gauge values
+// If needed, a screen update will take place.
+int Gauge::updateGauge(GaugeData data) {
+  int valueToUpdate = 0;
+  // topIndex = constrain(topIndex,  _limits.lowerLim, _limits.upperLim);
+  
+  // go through the provided data and constrain every parameter
+  GaugeData tempData;
+  tempData.CoolantTemp = constrain(data.CoolantTemp, CTEMP_MIN, CTEMP_MAX);
+  tempData.OilTemp = constrain(data.OilTemp, OTEMP_MIN, OTEMP_MAX);
+  tempData.OilPress = constrain(data.OilPress, OPRESS_MIN, OPRESS_MAX);
+  tempData.BoostPress = constrain(data.BoostPress, BPRESS_MIN, BPRESS_MAX);
+
+  // update the internal Gauge values
+  _data = tempData;
+  // find the value from the updated values to display to the gauge
+  switch (_gaugeType){
+    case COOLANT_TEMP:
+      valueToUpdate = _data.CoolantTemp;
+      break;
+    case OIL_TEMP:
+      valueToUpdate = _data.OilTemp;
+      break;
+    case OIL_PRESS:
+      valueToUpdate = _data.OilPress;
+      break;
+    case BOOST_PRESS:
+      valueToUpdate = _data.BoostPress;
+      break;
+    case G_METER:
+      break;
+    case TRIP_INSIGHTS:
+      break;
+  }
+  paintGauge(valueToUpdate);
+  paintValue(valueToUpdate);
+
+  return 0;
+}
+
 // Gauge.setType()
 // Converts screen to new display
 // Parameters:
@@ -70,6 +111,8 @@ void Gauge::setType(GaugeType type) {
   _limits.lowerLim = lims[type][0];
   _limits.upperLim = lims[type][1];
   clearIcon();
+  clearUnit();
+  clearNumber();
   switch (type) {
     case COOLANT_TEMP:
       paintIcon(COOLANT_ICON);
@@ -91,6 +134,7 @@ void Gauge::setType(GaugeType type) {
     case TRIP_INSIGHTS:
       break;
   }
+  updateGauge(_data);
 }
 
 // Gauge.paintGauge
@@ -99,29 +143,64 @@ void Gauge::setType(GaugeType type) {
 // Parameters:
 // - value: value to paint
 void Gauge::paintGauge(int value) {
-  static int currIndex;
-  static bool firstPrint = true;
-  int topIndex = map(value, _limits.lowerLim, _limits.upperLim, 0, 9);
-  // if gauge state is the same, don't paint it
-  if (currIndex == topIndex && !firstPrint) {
-    return;
+  
+  // static int currIndex;
+  // static bool firstPrint = true;
+  char nextGaugeState[NUM_INDICES]; int topIndex;
+
+  topIndex = map(value, _limits.lowerLim, _limits.upperLim, 0, NUM_INDICES);
+  topIndex = constrain(topIndex, 0, NUM_INDICES);
+
+  for (int i = 0; i < topIndex; i++){
+    nextGaugeState[i] = INDEX_ON;
   }
-  paintIndices(0, topIndex, INDEX_ON);
-  paintIndices(topIndex + 1, NUM_INDICES, INDEX_OFF);
-  currIndex = topIndex;
-  firstPrint = false;
+  for (int i = topIndex; i < NUM_INDICES; i++){
+    nextGaugeState[i] = INDEX_OFF;
+  }
+
+  // char debugStrTemp[256];
+  // sprintf(debugStrTemp, " %d,%d,%d,%d,%d,%d,%d,%d,%d\n %d,%d,%d,%d,%d,%d,%d,%d,%d", 
+  //         _gaugeState[0], _gaugeState[1], _gaugeState[2], _gaugeState[3], _gaugeState[4], _gaugeState[5], _gaugeState[6], _gaugeState[7], _gaugeState[8],
+  //         nextGaugeState[0], nextGaugeState[1], nextGaugeState[2], nextGaugeState[3], nextGaugeState[4], nextGaugeState[5], nextGaugeState[6], nextGaugeState[7], nextGaugeState[8]);
+  // String debugStr = String(debugStrTemp);
+  // printDebugMsg(debugStr);
+  // delay(10);
+
+  // how many indices are currently painted ON, how many need to be painted ON
+  for (int i = 0; i < NUM_INDICES; i++){
+    if (nextGaugeState[i] != _gaugeState[i]){
+      paintIndex(i+1, nextGaugeState[i]);
+
+      // sprintf(debugStrTemp, " topIndex = %d\n i = %d", topIndex, i);
+      // String debugStr = String(debugStrTemp);
+      // printDebugMsg(debugStr);
+    }
+  }
+  // _gaugeState = nextGaugeState;
+  memcpy(_gaugeState, nextGaugeState, NUM_INDICES);
+  
+
+  // // if gauge state is the same, don't paint it
+  // if (currIndex == topIndex && !firstPrint) {
+  //   return;
+  // }
+  // paintIndices(0, topIndex, INDEX_ON);
+  // paintIndices(topIndex + 1, NUM_INDICES, INDEX_OFF);
+  // currIndex = topIndex;
+  // firstPrint = false;
 }
 
 // Gauge.paintValue
 // Paints value as text in center of gauge
 void Gauge::paintValue(int value) {
-  // clear any existing values
-  // clearNumber();
+  
+  if (_gaugeType == GaugeType(COOLANT_TEMP)) return;
 
   int yStart = 96;
   // start X coordinate for each digit
   // since the number is centered it varies per size unlike the fixed Y coordinate
   int xStart[3] = { 0, 0, 0 };
+
   // -1 is any non-existent digit 
   // i.e. 25 has no 100s digit       -->{-1,  2,  5}
   //       5 has no 10s or 100s digit-->{-1, -1,  5}
@@ -165,20 +244,20 @@ void Gauge::paintValue(int value) {
     // save the current gauge value for the next time printing
     _gaugeValue[i] = digits[i];
   }
+  _gaugeValue_raw = value;
 
-  char debugStrTemp[256];
-  sprintf(debugStrTemp, " xStart={%d,%d,%d}\n digits={%d,%d,%d}", 
-                              xStart[0], xStart[1], xStart[2],
-                              digits[0], digits[1], digits[2]);
-  String debugStr = String(debugStrTemp);
-
-  printDebugMsg(debugStr);
+  // char debugStrTemp[256];
+  // sprintf(debugStrTemp, " xStart={%d,%d,%d}\n digits={%d,%d,%d}", 
+  //                             xStart[0], xStart[1], xStart[2],
+  //                             digits[0], digits[1], digits[2]);
+  // String debugStr = String(debugStrTemp);
+  // printDebugMsg(debugStr);
 }
 
 // Gauge.paintIndex()
 // Parameters:
 // - index: index of the gauge to paint (1 thru 9)
-// - state: color to paint index (0 = off/black, 1 = on/FG colorr)
+// - state: color to paint index (0 = off/black, 1 = on/FG color)
 void Gauge::paintIndex(char index, char state) {
   switch (index) {
     case 1:
@@ -281,7 +360,7 @@ void Gauge::paintIndex(char index, char state) {
       }
       break;
   }
-  _gaugeState[(int)index - 1] = state;
+  // _gaugeState[(int)index - 1] = state;
 }
 
 void Gauge::paintIndices(char startIndex, char endIndex, char state) {
