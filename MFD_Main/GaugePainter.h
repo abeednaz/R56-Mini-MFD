@@ -1,0 +1,127 @@
+/**************************************************************************
+  File: GaugePainter.h
+  Version: 2
+  Author: Abeed Nazar
+  Date: 08/14/2024
+
+  Gauge Painter library header file
+  
+  This library implements helper functions to make displaying to the gauge
+  more simple and modular. The GaugePainter library interfaces with the 
+  Adafruit GFX library to display the RGB565 color bitmaps in bitmaps.h.
+
+  Written with use of Adafruit GFX library
+
+**************************************************************************/
+
+#ifndef GAUGE_PAINTER_H
+#define GAUGE_PAINTER_H
+
+#include <Arduino.h>
+#include <Adafruit_GFX.h>    // Core graphics library
+// #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
+#include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
+#include <SPI.h>
+
+#define ORANGE_FG 0xFA00 // HSL 16 100 49
+#define ORANGE_BG 0x80C0 // HSL 11 100 25
+#define INDEX_ON 1
+#define INDEX_OFF 0
+#define INDEX_CLEAR 2
+#define NUM_INDICES 9
+
+#define COOLANT_ICON 0
+#define OIL_ICON 1
+#define TURBO_ICON 2
+
+#define UNIT_CELCIUS 0
+#define UNIT_PSI 1
+
+#define CTEMP_MIN 10
+#define CTEMP_MAX 170
+
+#define OTEMP_MIN 10
+#define OTEMP_MAX 150
+
+#define OPRESS_MIN 9
+#define OPRESS_MAX 99
+
+#define BPRESS_MIN 0
+#define BPRESS_MAX 12
+
+typedef enum
+{
+  COOLANT_TEMP,
+  OIL_TEMP,
+  OIL_PRESS,
+  BOOST_PRESS,
+  G_METER,
+  TRIP_INSIGHTS
+} GaugeType;
+
+typedef struct
+{
+  int upperLim;
+  int lowerLim;
+} Limits;
+
+// Data type to update the gauge from external driver code
+typedef struct
+{
+  // Main Gauge values
+  // initalize them to 1 to avoid any div/0 errors
+  int CoolantTemp = 0;
+  int OilTemp = 0;
+  int OilPress = 0;
+  int BoostPress = 0;
+  int BaroPress = 1;
+  int MAF = 1;
+  int MAP = 1;
+  float AFR = 14.7;
+
+  // Trip Insights statistics
+  int DriveCycleTime_sec = 0;
+  float DriveCycleDist_mi = 0;
+  float DriveCycleFuelUsage = 0;
+
+  // IMU values (not yet implemented)
+  float X_accel = 0; 
+  float Y_accel = 0; 
+  float Z_accel = 0;
+} GaugeData;
+
+class Gauge
+{
+  private:
+    // Necessary variables
+    Adafruit_ST7789 _tft; // TFT screen object
+    char _gaugeState[NUM_INDICES]; // Gauge state - how many indices are lit
+    int _gaugeValue[3]; // Gauge value - printed value, up to 3 digits
+    int _gaugeValue_raw; // Raw gauge value
+    GaugeType _gaugeType; // Type of gauge
+    Limits _limits; // Integer limits of gauge
+    GaugeData _data; // Data struct for gauge
+
+    void paintGauge(int value);
+    void paintValue(int value);
+    void paintIndex(char index, char state);
+    void paintIndices(char startIndex, char endIndex, char state);
+    void paintIcon(char icon);
+    void paintUnit(char unit);
+    void clearIcon();
+    void clearUnit();
+    void clearNumber();
+    void getLimits(int lims[2]);
+    void startupAnimation();
+
+  public:
+    Gauge(int TFT_CS, int TFT_DC, int TFT_RST);
+    void begin(int xSize, int ySize);
+    void setType(GaugeType type);
+    GaugeType getType();
+    int updateGauge(GaugeData data);
+    void printDebugMsg(String s);
+    
+};
+
+#endif // GAUGE_PAINTER_H
