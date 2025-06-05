@@ -51,12 +51,13 @@
 
 typedef enum
 {
-  COOLANT_TEMP,
-  OIL_TEMP,
-  OIL_PRESS,
-  BOOST_PRESS,
-  G_METER,
-  TRIP_INSIGHTS
+  GAUGE_TYPE_COOLANT_TEMP,
+  GAUGE_TYPE_OIL_TEMP,
+  GAUGE_TYPE_OIL_PRESS,
+  GAUGE_TYPE_BOOST_PRESS,
+  // G_METER,
+  GAUGE_TYPE_TRIP_INSIGHTS,
+  GAUGE_TYPE_MAX,
 } GaugeType;
 
 typedef struct
@@ -78,6 +79,8 @@ typedef struct
   int MAF = 1;
   int MAP = 1;
   float AFR = 14.7;
+  int RunTime = 0;
+  int FuelPress = 0;
 
   // Trip Insights statistics
   int DriveCycleTime_sec = 0;

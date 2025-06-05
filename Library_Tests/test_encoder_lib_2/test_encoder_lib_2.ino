@@ -9,12 +9,16 @@
 */
 
 #include "RGB_Encoder.h"
+#define RAINBOW_ENCODER_TEST
+// #define ALL_COLORS_TEST
 
 void setup() {
   // put your setup code here, to run once:
   RGB_Encoder_Init();
   Serial.begin(115200);
 }
+
+#ifdef RAINBOW_ENCODER_TEST
 
 void loop() {
   // put your main code here, to run repeatedly:
@@ -33,6 +37,41 @@ void loop() {
   }
   lastAngle = angle;
 }
+
+#endif // RAINBOW_ENCODER_TEST
+
+#ifdef ALL_COLORS_TEST
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  
+  char RGB [3] = {0, 0, 0};
+
+  for (int R = 0; R < 256; R++){
+    for (int G = 0; G < 256; G++){
+      for (int B = 0; B < 256; B++){
+        Serial.print("R: ");
+        Serial.print(R);
+        Serial.print(" | R: ");
+        Serial.print(G);
+        Serial.print(" | B: ");
+        Serial.print(B);
+        Serial.println();
+
+        RGB[0] = R;
+        RGB[1] = G;
+        RGB[2] = B;
+
+        RGB_Encoder_setColor(RGB);
+        // delay(1);
+
+      }
+    }
+  }
+  
+}
+
+#endif // ALL_COLORS_TEST
 
 void GetColorFromAngle(int angle, char colors[3]) {
   int redVal, greenVal, blueVal;
@@ -67,3 +106,4 @@ void GetColorFromAngle(int angle, char colors[3]) {
   colors[1] = greenVal;
   colors[2] = blueVal;
 }
+

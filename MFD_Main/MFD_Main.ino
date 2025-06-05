@@ -23,10 +23,17 @@
 #define RST       37 // Or set to -1 and connect to Arduino RESET pin
 #define DC        36
 
-#define INCREMENT_PID_STATE(PID) do { PID = PID_States((int)PID + 1); } while(0)
+#define LED_R 7
+#define LED_G 6
+#define LED_B 5
 
-// GPIO pin for button
-// #define ...
+#define BTN_PIN 4
+
+#define BTN_1_ACTION 1   // how many ms to press button to switch gauges
+#define BTN_2_ACTION 500 // how many ms to press button for secondary action (action is TBD)
+
+#define INCREMENT_PID_STATE(PID) do { PID = PID_States((int)PID + 1); } while(0)
+#define INCREMENT_GAUGE_TYPE(type) do { type = GaugeType( ((int)type + 1) % (int)GAUGE_TYPE_MAX); } while(0)
 
 // enum to go through while collecting OBD data
 typedef enum
@@ -43,7 +50,7 @@ typedef enum
   PID_MAX_STATE,
 } PID_States;
 
-Gauge myGauge(CS, DC, RST);
+Gauge mainGauge(CS, DC, RST);
 GaugeType type;
 GaugeData testData;
 
@@ -56,15 +63,25 @@ ELM327 main_ELM327;
 
 char debugPrintBuffer[40];
 
+bool buttonPressed = false;
 
+// ISR for button
+void IRAM_ATTR RegButton() {
+  if (digitalRead(BTN_PIN)) {
+    buttonPressed = true;
+  }
+  else {
+    buttonPressed = false;
+  }
+}
 
 void setup(void) {
 
-  // myGauge.begin(240, 320);
+  // mainGauge.begin(240, 320);
 
   // Connecting to ELM327 WiFi
   // sprintf(debugPrintBuffer, "Connecting to \n%s", ssid);
-  // myGauge.printDebugMsg(String(debugPrintBuffer));
+  // mainGauge.printDebugMsg(String(debugPrintBuffer));
 
   Serial.begin(115200);
 
@@ -95,24 +112,21 @@ void setup(void) {
     while(1);
   }
   // false for debug msg OFF, true for debug msg ON
-  main_ELM327.begin(client, false, 2000);
+  main_ELM327.begin(client, false, 2000);  
 
-  uint32_t pids = main_ELM327.supportedPIDs_1_20();
+  pinMode(BTN_PIN, INPUT);
+  attachInterrupt(digitalPinToInterrupt(BTN_PIN), RegButton, CHANGE);
 
-  if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-  {
-      Serial.print("Supported PIDS: "); Serial.println(pids);
-      delay(10000);
-  }
-  else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-  {
-      main_ELM327.printError();
-  }    
+  mainGauge.begin(240, 320);
+  mainGauge.setType(GaugeType(GAUGE_TYPE_COOLANT_TEMP));
 
 }
 
 void loop() {
   static PID_States currPID = PID_COOLANT_TEMP;
+  static unsigned long buttonTimer = 0; static bool startPress = false;
+  static char RGB [3] = {0, 0, 0};
+  
 
   switch (currPID){
       case PID_COOLANT_TEMP:
@@ -123,11 +137,13 @@ void loop() {
         
         if (main_ELM327.nb_rx_state == ELM_SUCCESS)
         {
-          Serial.print(currPID);
-          Serial.print(" | ");
-          Serial.print("coolant temp: ");
-          Serial.print(coolantTemp);
-          Serial.println(" deg C");
+          testData.CoolantTemp = coolantTemp;
+
+          // Serial.print(currPID);
+          // Serial.print(" | ");
+          // Serial.print("coolant temp: ");
+          // Serial.print(coolantTemp);
+          // Serial.println(" deg C");
           INCREMENT_PID_STATE(currPID);
         }
         else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -158,11 +174,13 @@ void loop() {
         oilTemp = oilTemp - 60; // celcius
         if (main_ELM327.nb_rx_state == ELM_SUCCESS)
         {
-          Serial.print(currPID);
-          Serial.print(" | ");
-          Serial.print("oil temp: ");
-          Serial.print(oilTemp);
-          Serial.println(" deg C");
+          testData.OilTemp = oilTemp;
+
+          // Serial.print(currPID);
+          // Serial.print(" | ");
+          // Serial.print("oil temp: ");
+          // Serial.print(oilTemp);
+          // Serial.println(" deg C");
           INCREMENT_PID_STATE(currPID);
         }
         else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -191,10 +209,12 @@ void loop() {
         oilPress = ( (oilPress * 255) + testData.BaroPress) / 69 - testData.BaroPress; // what unit?
         if (main_ELM327.nb_rx_state == ELM_SUCCESS)
         {
-          Serial.print(currPID);
-          Serial.print(" | ");
-          Serial.print("oil pressure: ");
-          Serial.println(oilPress);
+          testData.OilPress = oilPress;
+
+          // Serial.print(currPID);
+          // Serial.print(" | ");
+          // Serial.print("oil pressure: ");
+          // Serial.println(oilPress);
           INCREMENT_PID_STATE(currPID);
         }
         else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -212,11 +232,13 @@ void loop() {
         fuel_rail_press = 10 * (256 * fuel_rail_press) + testData.BaroPress;
         if (main_ELM327.nb_rx_state == ELM_SUCCESS)
         {
-          Serial.print(currPID);
-          Serial.print(" | ");
-          Serial.print("fuel rail pressure: ");
-          Serial.print(fuel_rail_press);
-          Serial.println(" KPa");
+          testData.FuelPress = fuel_rail_press;
+
+          // Serial.print(currPID);
+          // Serial.print(" | ");
+          // Serial.print("fuel rail pressure: ");
+          // Serial.print(fuel_rail_press);
+          // Serial.println(" KPa");
           INCREMENT_PID_STATE(currPID);
         }
         else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -232,11 +254,13 @@ void loop() {
         int MAP = main_ELM327.processPID(SERVICE_01, 0x0B, 1, 1, 1, 1);
         if (main_ELM327.nb_rx_state == ELM_SUCCESS)
         {
-          Serial.print(currPID);
-          Serial.print(" | ");
-          Serial.print("manifold abs pressure: ");
-          Serial.print(MAP);
-          Serial.println(" kPa");
+          testData.MAP = MAP;
+
+          // Serial.print(currPID);
+          // Serial.print(" | ");
+          // Serial.print("manifold abs pressure: ");
+          // Serial.print(MAP);
+          // Serial.println(" kPa");
           INCREMENT_PID_STATE(currPID);
         }
         else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -252,11 +276,13 @@ void loop() {
         int baro_press = main_ELM327.processPID(SERVICE_01, 0x33, 1, 1, 1, 1);
         if (main_ELM327.nb_rx_state == ELM_SUCCESS)
         {
-          Serial.print(currPID);
-          Serial.print(" | ");
-          Serial.print("atmospheric pressure: ");
-          Serial.print(baro_press);
-          Serial.println(" kPa");
+          testData.BaroPress = baro_press;
+
+          // Serial.print(currPID);
+          // Serial.print(" | ");
+          // Serial.print("atmospheric pressure: ");
+          // Serial.print(baro_press);
+          // Serial.println(" kPa");
 
           testData.BaroPress = baro_press;
           
@@ -274,11 +300,13 @@ void loop() {
         int run_time = main_ELM327.runTime();
         if (main_ELM327.nb_rx_state == ELM_SUCCESS)
         {
-          Serial.print(currPID);
-          Serial.print(" | ");
-          Serial.print("trip time: ");
-          Serial.print(run_time);
-          Serial.println(" sec");
+          testData.RunTime = run_time;
+
+          // Serial.print(currPID);
+          // Serial.print(" | ");
+          // Serial.print("trip time: ");
+          // Serial.print(run_time);
+          // Serial.println(" sec");
           INCREMENT_PID_STATE(currPID);
         }
         else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -293,17 +321,16 @@ void loop() {
         float AFR = main_ELM327.commandedAirFuelRatio();
         // inst_fuel_rate = inst_fuel_rate * 100 / 255;
         // float inst_fuel_rate = main_ELM327.fuelRate();
-        int inst_fuel_rate = ((testData.MAF * 3600) / (AFR * 820)) / 10 ; // L/h
+        
         if (main_ELM327.nb_rx_state == ELM_SUCCESS)
         {
-          Serial.print(currPID);
-          Serial.print(" | ");
-          Serial.print("AFR:");
-          Serial.print(AFR);
-          Serial.print(" --> ");
-          Serial.print("inst fuel economy: ");
-          Serial.print(inst_fuel_rate);
-          Serial.println(" L/hr");
+          testData.AFR = AFR;
+
+          // Serial.print(currPID);
+          // Serial.print(" | ");
+          // Serial.print("AFR:");
+          // Serial.println(AFR);
+
           INCREMENT_PID_STATE(currPID);
         }
         else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -313,19 +340,19 @@ void loop() {
         }
         break;
       }
-      case PID_MASS_AIRFLOW: // L/h --> convert to mpg, integrate over trip time to get trip MPG
+      case PID_MASS_AIRFLOW:
       {
-        // int inst_fuel_rate = main_ELM327.processPID(0x01, 0x5E, 1, 2, 1, 1);
-        int MAF = main_ELM327.mafRate();
-        // inst_fuel_rate = inst_fuel_rate * 100 / 255;
-        // float inst_fuel_rate = main_ELM327.fuelRate();
+        int MAF = main_ELM327.processPID(SERVICE_01, 0x10, 1, 2, 1, 1); // g/s
+        MAF = ((256 * MAF) + testData.BaroPress) / 100;
+        // int MAF = main_ELM327.mafRate();
         if (main_ELM327.nb_rx_state == ELM_SUCCESS)
         {
           testData.MAF = MAF;
-          Serial.print(currPID);
-          Serial.print(" | ");
-          Serial.print("MAF: ");
-          Serial.println(MAF);
+
+          // Serial.print(currPID);
+          // Serial.print(" | ");
+          // Serial.print("MAF: ");
+          // Serial.println(MAF);
           INCREMENT_PID_STATE(currPID);
         }
         else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -335,46 +362,99 @@ void loop() {
         }
         break;
       }
-      // reset PID to check back to beginning if the last PID was reached
+      // got to last PID to check
+      // now perform extra calculations and gauge drawing
       case PID_MAX_STATE:
       {
+        /*
+        calculation for instantaneous fuel consumption (gal/s):
+        (MAF) g air   1 g fuel      1 dm^3 fuel   0.264172 US gal
+        ----------- * ----------- * ----------- * ---------------
+        1 s           (AFR) g air   820 g fuel    1 dm^3 fuel
+        */
+        float inst_fuel_rate = (testData.MAF * 0.264172) / (testData.AFR * 820);
+        /*
+        calculation for turbocharger boost pressure:
+        MAP - baro pressure
+        */
+        float boost_press = testData.MAP - testData.BaroPress;
+
+        // apply the correct color to the LED 
+        Calculate_Color(0, RGB);
+        Button_SetColor(RGB);
+
+        // update all gauge data, gauge library handles repainting internally 
+        mainGauge.updateGauge(testData);
+
+        Serial.print("Inst fuel rate: ");
+        Serial.print(inst_fuel_rate);
+        Serial.print(" gal/s");
+        Serial.println();
+        Serial.print("Boost pressure: ");
+        Serial.print(boost_press);
+        Serial.print(" KPa");
+        Serial.println();
         Serial.println("last PID, resetting");
         currPID = PID_States(0);
         break;
       }
   }
+  
+  // begin counting how long the button has been pressed once the ISR catches 
+  // a button press event
+  if (buttonPressed && !startPress){
+    buttonTimer = millis();
+    startPress = true;
+    // Serial.println("Button pressed");
+  }
+  // stop timing how long the button press took after the ISR catches
+  // a button de-press event
+  if (!buttonPressed && startPress){
+    // won't account for o'flow which happens after 50 days of continuous use
+    unsigned long buttonInterval = millis() - buttonTimer; 
+    startPress = false;
+    // Serial.print("Button pressed for ");
+    // Serial.print(buttonInterval);
+    // Serial.println(" ms");
+
+    // Short press: Switch gauges
+    if (buttonInterval > BTN_1_ACTION && buttonInterval < BTN_2_ACTION){
+      INCREMENT_GAUGE_TYPE(type);
+      mainGauge.setType(type);
+
+      Serial.print("Switching gauges to:");
+      Serial.println(int(type));
+    }
+    // Long press: undefined action
+    else {
+      Serial.println("Secondary action");
+    }
     
+  }
+
 }
 
-/*
-PIDs to use:
-- 0x67 - Coolant temperature
-- 0x5C - Oil temperature
-
-- 0x6F - Turbocharger boost pressure
-OR
-- 0x87 Intake MAP 
-
-
-0x7F - Engine runtime
-
-*/
-
-/*
-GetBoostPress()
-Inputs
-- ELM327 object
-Outputs
-- Boost pressure as a fn of manifold and atmospheric pressure.
-
-See if this is possible with 
-*/
-int GetBoostPress(ELM327 main_ELM327){
-  int manifoldAbsPress = main_ELM327.manifoldPressure();
-  int baroPress = main_ELM327.absBaroPressure();
-  return manifoldAbsPress - baroPress;
+// TODO
+// create a fn which starts with a blue color for low temperature
+// (i.e. <25C)
+// and extinguishes the light at operating temperature
+// (i.e. 80C)
+// possibly lights orange/red at high temperature
+// (i.e. 120C)
+// hardcoded values for now
+void Calculate_Color(int temperature, char colors[3]) {
+  int redVal, greenVal, blueVal;
+  redVal = 153;
+  greenVal = 204;
+  blueVal = 255;
+  colors[0] = redVal;
+  colors[1] = greenVal;
+  colors[2] = blueVal;
 }
 
-int GetOilPress(ELM327 main_ELM327){
-  return 0;
+void Button_SetColor(char RGB[3])
+{
+  analogWrite(LED_R, RGB[0]);
+  analogWrite(LED_G, RGB[1]);
+  analogWrite(LED_B, RGB[2]);
 }

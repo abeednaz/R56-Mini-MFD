@@ -79,21 +79,21 @@ int Gauge::updateGauge(GaugeData data) {
   _data = tempData;
   // find the value from the updated values to display to the gauge
   switch (_gaugeType){
-    case COOLANT_TEMP:
+    case GAUGE_TYPE_COOLANT_TEMP:
       valueToUpdate = _data.CoolantTemp;
       break;
-    case OIL_TEMP:
+    case GAUGE_TYPE_OIL_TEMP:
       valueToUpdate = _data.OilTemp;
       break;
-    case OIL_PRESS:
+    case GAUGE_TYPE_OIL_PRESS:
       valueToUpdate = _data.OilPress;
       break;
-    case BOOST_PRESS:
+    case GAUGE_TYPE_BOOST_PRESS:
       valueToUpdate = _data.BoostPress;
       break;
-    case G_METER:
+    case GAUGE_TYPE_TRIP_INSIGHTS:
       break;
-    case TRIP_INSIGHTS:
+    case GAUGE_TYPE_MAX:
       break;
   }
   paintGauge(valueToUpdate);
@@ -114,24 +114,26 @@ void Gauge::setType(GaugeType type) {
   clearUnit();
   clearNumber();
   switch (type) {
-    case COOLANT_TEMP:
+    case GAUGE_TYPE_COOLANT_TEMP:
       paintIcon(COOLANT_ICON);
       break;
-    case OIL_TEMP:
+    case GAUGE_TYPE_OIL_TEMP:
       paintIcon(OIL_ICON);
       paintUnit(UNIT_CELCIUS);
       break;
-    case OIL_PRESS:
+    case GAUGE_TYPE_OIL_PRESS:
       paintIcon(OIL_ICON);
       paintUnit(UNIT_PSI);
       break;
-    case BOOST_PRESS:
+    case GAUGE_TYPE_BOOST_PRESS:
       paintIcon(TURBO_ICON);
       paintUnit(UNIT_PSI);
       break;
-    case G_METER:
+    // case GAUGE_TYPE_G_METER:
+    //   break;
+    case GAUGE_TYPE_TRIP_INSIGHTS:
       break;
-    case TRIP_INSIGHTS:
+    case GAUGE_TYPE_MAX:
       break;
   }
   updateGauge(_data);
@@ -194,7 +196,7 @@ void Gauge::paintGauge(int value) {
 // Paints value as text in center of gauge
 void Gauge::paintValue(int value) {
   
-  if (_gaugeType == GaugeType(COOLANT_TEMP)) return;
+  if (_gaugeType == GaugeType(GAUGE_TYPE_COOLANT_TEMP)) return;
 
   int yStart = 96;
   // start X coordinate for each digit

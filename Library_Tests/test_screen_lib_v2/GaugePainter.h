@@ -56,7 +56,7 @@ typedef enum
   OIL_PRESS,
   BOOST_PRESS,
   G_METER,
-  TRIP_INSIGHTS
+  TRIP_INSIGHTS,
 } GaugeType;
 
 typedef struct
