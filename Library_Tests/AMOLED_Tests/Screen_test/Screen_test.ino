@@ -4,8 +4,9 @@
 
 // C arrays for images (gauge indices)
 // #include "ind9.c" 
-#include "ind12_off.c"
-#include "ind12_on.c"
+// #include "ind12_off.c"
+// #include "ind12_on.c"
+#include "Gauge_Icons.h"
 
 // #include "HWCDC.h"
 // HWCDC USBSerial;
@@ -58,6 +59,7 @@ static int current_img_index = 0; // 0 = off, 1 = on
 
 // array to refer to image objects
 static lv_obj_t *gauge_img_ind[9];
+static lv_img_dsc_t gauge_img_dsc_ind[9][2];
 
 /******************************************************************************
 *                              HELPER FUNCTIONS                               *
@@ -65,9 +67,27 @@ static lv_obj_t *gauge_img_ind[9];
 
 // initialize array of gauge objects
 void create_gauge_images(lv_obj_t *parent) {
-    for (int i = 0; i < 9; i++) {
-        gauge_img_ind[i] = lv_img_create(parent);
-    }
+  for (int i = 0; i < 9; i++) {
+    gauge_img_ind[i] = lv_img_create(parent);
+  }
+  gauge_img_dsc_ind[0][0] = img_ind8_off;
+  gauge_img_dsc_ind[0][1] = img_ind8_on;
+  gauge_img_dsc_ind[1][0] = img_ind9_off;
+  gauge_img_dsc_ind[1][1] = img_ind9_on;
+  gauge_img_dsc_ind[2][0] = img_ind10_off;
+  gauge_img_dsc_ind[2][1] = img_ind10_on;
+  gauge_img_dsc_ind[3][0] = img_ind11_off;
+  gauge_img_dsc_ind[3][1] = img_ind11_on;
+  gauge_img_dsc_ind[4][0] = img_ind12_off;
+  gauge_img_dsc_ind[4][1] = img_ind12_on;
+  gauge_img_dsc_ind[5][0] = img_ind1_off;
+  gauge_img_dsc_ind[5][1] = img_ind1_on;
+  gauge_img_dsc_ind[6][0] = img_ind2_off;
+  gauge_img_dsc_ind[6][1] = img_ind2_on;
+  gauge_img_dsc_ind[7][0] = img_ind3_off;
+  gauge_img_dsc_ind[7][1] = img_ind3_on;
+  gauge_img_dsc_ind[8][0] = img_ind4_off;
+  gauge_img_dsc_ind[8][1] = img_ind4_on;
 }
 
 void example_lvgl_rounder_cb(struct _lv_disp_drv_t *disp_drv, lv_area_t *area)
@@ -134,51 +154,50 @@ void setup() {
   // lv_obj_center(ref_circle);
   // lv_obj_set_size(ref_circle, 233, 233); 	//Or in one function
 
+  // index 8
   gauge_img_ind[0] = lv_img_create(scr);
-  lv_img_set_src(gauge_img_ind[0], &img_ind12_off);
-  lv_obj_set_pos(gauge_img_ind[0], 55, 274);
-  lv_img_set_angle(gauge_img_ind[0], 2400);
+  lv_img_set_src(gauge_img_ind[0], &gauge_img_dsc_ind[0][0]);
+  lv_obj_set_pos(gauge_img_ind[0], 32, 290);
 
+  // index 9
   gauge_img_ind[1] = lv_img_create(scr);
-  lv_img_set_src(gauge_img_ind[1], &img_ind12_off);
-  lv_obj_set_pos(gauge_img_ind[1], 32, 186);
-  lv_img_set_angle(gauge_img_ind[1], 2700);
+  lv_img_set_src(gauge_img_ind[1], &gauge_img_dsc_ind[1][0]);
+  lv_obj_set_pos(gauge_img_ind[1], 8, 210);
 
+  // index 10
   gauge_img_ind[2] = lv_img_create(scr);
-  lv_img_set_src(gauge_img_ind[2], &img_ind12_off);
-  lv_obj_set_pos(gauge_img_ind[2], 55, 98);
-  lv_img_set_angle(gauge_img_ind[2], 3000);
-
-  gauge_img_ind[3] = lv_img_create(scr);
-  lv_img_set_src(gauge_img_ind[3], &img_ind12_off);
-  lv_obj_set_pos(gauge_img_ind[3], 120, 34);
-  lv_img_set_angle(gauge_img_ind[3], 3300);
-
-  // Create image for index 12
-  gauge_img_ind[4] = lv_img_create(scr);
-  lv_img_set_src(gauge_img_ind[4], &img_ind12_off);
-  lv_obj_set_pos(gauge_img_ind[4], 208, 10);
-  lv_img_set_angle(gauge_img_ind[4], 0);
-
-  gauge_img_ind[5] = lv_img_create(scr);
-  lv_img_set_src(gauge_img_ind[5], &img_ind12_off);
-  lv_obj_set_pos(gauge_img_ind[5], 296, 34);
-  lv_img_set_angle(gauge_img_ind[5], 300);
+  lv_img_set_src(gauge_img_ind[2], &gauge_img_dsc_ind[2][0]);
+  lv_obj_set_pos(gauge_img_ind[2], 32, 106);
   
+  // index 11
+  gauge_img_ind[3] = lv_img_create(scr);
+  lv_img_set_src(gauge_img_ind[3], &gauge_img_dsc_ind[3][0]);
+  lv_obj_set_pos(gauge_img_ind[3], 103, 34);
+
+  // index 12
+  gauge_img_ind[4] = lv_img_create(scr);
+  lv_img_set_src(gauge_img_ind[4], &gauge_img_dsc_ind[4][0]);
+  lv_obj_set_pos(gauge_img_ind[4], 208, 10);
+  
+  // index 1
+  gauge_img_ind[5] = lv_img_create(scr);
+  lv_img_set_src(gauge_img_ind[5], &gauge_img_dsc_ind[5][0]);
+  lv_obj_set_pos(gauge_img_ind[5], 287, 34);
+  
+  // index 2
   gauge_img_ind[6] = lv_img_create(scr);
-  lv_img_set_src(gauge_img_ind[6], &img_ind12_off);
-  lv_obj_set_pos(gauge_img_ind[6], 361, 98);
-  lv_img_set_angle(gauge_img_ind[6], 600);
+  lv_img_set_src(gauge_img_ind[6], &gauge_img_dsc_ind[6][0]);
+  lv_obj_set_pos(gauge_img_ind[6], 340, 106);
 
+  // index 3
   gauge_img_ind[7] = lv_img_create(scr);
-  lv_img_set_src(gauge_img_ind[7], &img_ind12_off);
-  lv_obj_set_pos(gauge_img_ind[7], 384, 186);
-  lv_img_set_angle(gauge_img_ind[7], 900);
-
+  lv_img_set_src(gauge_img_ind[7], &gauge_img_dsc_ind[7][0]);
+  lv_obj_set_pos(gauge_img_ind[7], 361, 210);
+  
+  // index 4
   gauge_img_ind[8] = lv_img_create(scr);
-  lv_img_set_src(gauge_img_ind[8], &img_ind12_off);
-  lv_obj_set_pos(gauge_img_ind[8], 361, 274);
-  lv_img_set_angle(gauge_img_ind[8], 1200);
+  lv_img_set_src(gauge_img_ind[8], &gauge_img_dsc_ind[8][0]);
+  lv_obj_set_pos(gauge_img_ind[8], 340, 290);
 
   // Set up timer for LVGL
   const esp_timer_create_args_t lvgl_tick_timer_args = {
@@ -205,13 +224,13 @@ void loop() {
     current_img_index = 1 - current_img_index;
     if (current_img_index == 0) {
       for (int i = 0; i < 9; i++) {
-        lv_img_set_src(gauge_img_ind[i], &img_ind12_on);
+        lv_img_set_src(gauge_img_ind[i], &gauge_img_dsc_ind[i][1]);
       } 
       // lv_img_set_src(gauge_img_ind[8], &img_ind12_on);
       // lv_obj_set_style_img_recolor(img_ind12, lv_color_hsv_to_rgb(16, 100, 49), 0);
     } else {
       for (int i = 0; i < 9; i++) {
-        lv_img_set_src(gauge_img_ind[i], &img_ind12_off);
+        lv_img_set_src(gauge_img_ind[i], &gauge_img_dsc_ind[i][0]);
       }
       // lv_img_set_src(gauge_img_ind[8], &img_ind12_off);
       // lv_obj_set_style_img_recolor(img_ind12, lv_color_hsv_to_rgb(0, 0, 0), 0);
