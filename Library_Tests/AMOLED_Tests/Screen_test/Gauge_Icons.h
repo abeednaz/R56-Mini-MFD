@@ -20,4 +20,7 @@
 #include "ind4_off.c"
 #include "ind4_on.c"
 
+#include "MINI_font_numbers.c"
+// #include "MINI_font_letters.c"
+
 #endif // __GAUGE_ICONS_H

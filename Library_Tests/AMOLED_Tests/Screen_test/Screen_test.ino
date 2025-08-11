@@ -30,6 +30,7 @@ Arduino_GFX *gfx = new Arduino_CO5300(
   6, 0, 0, 0
 );
 
+
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[LCD_WIDTH * 10];
 static lv_obj_t *ref_circle;
@@ -42,6 +43,8 @@ static lv_obj_t *ref_circle;
 // static lv_obj_t *img_ind3;
 // static lv_obj_t *img_ind2;
 // static lv_obj_t *img_ind1;
+static lv_obj_t *label;  // Global label object
+static lv_style_t style; // style for label
 static unsigned long last_switch = 0;
 static int current_img_index = 0; // 0 = off, 1 = on
 
@@ -60,6 +63,9 @@ static int current_img_index = 0; // 0 = off, 1 = on
 // array to refer to image objects
 static lv_obj_t *gauge_img_ind[9];
 static lv_img_dsc_t gauge_img_dsc_ind[9][2];
+
+// value to print
+static char value_str[8];
 
 /******************************************************************************
 *                              HELPER FUNCTIONS                               *
@@ -209,6 +215,23 @@ void setup() {
   esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer);
   esp_timer_start_periodic(lvgl_tick_timer, LV_TIMER_PERIOD_MS * 1000);
 
+  // Center number test
+  label = lv_label_create(scr);
+  lv_style_init(&style);
+  lv_style_set_text_letter_space(&style, -48);
+  lv_style_set_text_color(&style, lv_color_hex(0xfa4300)); 
+  lv_obj_set_style_text_font(label, &MINI_font_numbers, LV_PART_MAIN); 
+  lv_obj_add_style(label, &style, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+  itoa(123, value_str, 10);
+  lv_label_set_text(label, value_str);
+  lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+  
+  
+  // lv_label_set_recolor(label, true);
+  // lv_label_set_text(label, "#fa4300 123#");
+  
+
 }
 
 
@@ -216,6 +239,7 @@ void setup() {
 *                                 MAIN DRIVER                                 *
 ******************************************************************************/
 void loop() {
+  static int print_val = 0;
   unsigned long now = millis();
   if (now - last_switch >= 1000) {
     Serial.println(current_img_index);
@@ -240,6 +264,11 @@ void loop() {
     // lv_obj_invalidate(img_ind12);
     // lv_img_cache_invalidate_src(NULL);
   }
+
+  print_val++;
+  if (print_val == 255) print_val = 0;
+  itoa(print_val, value_str, 10);
+  lv_label_set_text(label, value_str);
   
   lv_timer_handler();
   delay(5);
