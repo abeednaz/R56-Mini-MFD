@@ -51,10 +51,10 @@ class Gauge
 {
   public:
     Gauge();
-    void begin(int xSize, int ySize);
+    void begin();
     void setType(GaugeType type);
     GaugeType getType();
-    int updateGauge(GaugeData data);
+    int update(GaugeData data);
     void printDebugMsg(String s);
 
   private:
@@ -74,9 +74,9 @@ class Gauge
     lv_img_dsc_t _gauge_img_dsc_ind[GAUGE_NUM_INDICES][2]; // pointer to image descriptors
 
     // LVGL drawing function callbacks
-    static void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
-    static void example_lvgl_rounder_cb(struct _lv_disp_drv_t *disp_drv, lv_area_t *area);
-    static void example_increase_lvgl_tick(void *arg);
+    static void disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
+    static void lvgl_rounder_cb(struct _lv_disp_drv_t *disp_drv, lv_area_t *area);
+    static void increase_lvgl_tick(void *arg);
 
     char _gaugeState[GAUGE_NUM_INDICES]; // Gauge state - how many indices are lit
     char value_str[4]; // Gauge value - printed value, up to 3 digits
@@ -86,7 +86,6 @@ class Gauge
     GaugeData _data; // Data struct for gauge
 
     void createGaugeImages(lv_obj_t *parent); // during init, fill out array of image objects
-    void increase_lvgl_tick(void *arg); // LVGL timer fn
 
     void paintGauge(int value);
     void paintValue(int value);
