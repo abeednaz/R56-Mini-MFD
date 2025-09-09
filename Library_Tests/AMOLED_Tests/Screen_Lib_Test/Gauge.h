@@ -20,6 +20,12 @@ typedef enum
   GAUGE_TYPE_MAX,
 } GaugeType;
 
+typedef struct
+{
+  int upperLim;
+  int lowerLim;
+} Limits;
+
 // Data type to update the gauge from external driver code
 typedef struct
 {
@@ -67,7 +73,7 @@ class Gauge
     // screen specifics
     lv_obj_t *_label; // number displayed on screen
     lv_style_t _label_style; // style for the number displayed
-    lv_obj_t *_scr;
+    lv_obj_t *_scr; // active screen -- need to have multiple for different gauge types
 
     // array to refer to image objects
     lv_obj_t *_gauge_img_ind[GAUGE_NUM_INDICES]; // pointer to image bitmaps
@@ -82,15 +88,17 @@ class Gauge
     char value_str[4]; // Gauge value - printed value, up to 3 digits
     int _gaugeValue_raw; // Raw gauge value
     GaugeType _gaugeType; // Type of gauge
-    // Limits _limits; // Integer limits of gauge
+    Limits _limits; // Integer limits of gauge
     GaugeData _data; // Data struct for gauge
 
     void createGaugeImages(lv_obj_t *parent); // during init, fill out array of image objects
+    void assignGaugeImages(lv_obj_t *parent);
 
     void paintGauge(int value);
     void paintValue(int value);
     void paintIndex(char index, char state);
     void paintIndices(char startIndex, char endIndex, char state);
+    void findNextGaugeState(int value, Limits limits, char* outState);
     void paintIcon(char icon);
     void paintUnit(char unit);
     void clearIcon();

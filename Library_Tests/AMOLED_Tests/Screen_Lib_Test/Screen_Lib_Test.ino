@@ -31,6 +31,14 @@ void setup() {
 ******************************************************************************/
 void loop() {
   static GaugeData data;
+  // int testVals[] = {0, 28, 46, 64, 82, 99, 117, 135, 170, 117};
+  // for (int i = 0; i < 10; i++) {
+  //   data.CoolantTemp = testVals[i];
+  //   mainGauge.update(data);
+  //   delay(500);
+  // }
+  data.CoolantTemp = random(0,200);
   mainGauge.update(data);
-  delay(5);
+  delay(500);
+  
 }
