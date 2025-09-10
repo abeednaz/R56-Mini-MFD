@@ -1,0 +1,1263 @@
+(export 
+  (version D) 
+  (design 
+    (source "/Users/Abeed/Documents/R56 Mini MFD/OBD port power distribution board/OBD port power distribution board.sch") 
+    (date "Saturday, July 20, 2024 at 12:07:43 PM") 
+    (tool "Eeschema (5.1.12-1-10_14)") 
+    (sheet 
+      (number 1) 
+      (name /) 
+      (tstamps /) 
+      (title_block 
+        (title) 
+        (company) 
+        (rev) 
+        (date) 
+        (source "OBD port power distribution board.sch") 
+        (comment 
+          (number 1) 
+          (value "")) 
+        (comment 
+          (number 2) 
+          (value "")) 
+        (comment 
+          (number 3) 
+          (value "")) 
+        (comment 
+          (number 4) 
+          (value ""))))) 
+  (components 
+    (comp 
+      (ref Q1) 
+      (value IRF540N) 
+      (footprint Package_TO_SOT_THT:TO-220-3_Vertical) 
+      (datasheet http://www.irf.com/product-info/datasheets/data/irf540n.pdf) 
+      (libsource 
+        (lib Transistor_FET) 
+        (part IRF540N) 
+        (description "33A Id, 100V Vds, HEXFET N-Channel MOSFET, TO-220")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 66988AC0)) 
+    (comp 
+      (ref Q2) 
+      (value IRF9540N) 
+      (footprint Package_TO_SOT_THT:TO-220-3_Vertical) 
+      (datasheet http://www.irf.com/product-info/datasheets/data/irf9540n.pdf) 
+      (libsource 
+        (lib Transistor_FET) 
+        (part IRF9540N) 
+        (description "-23A Id, -100V Vds, 117mOhm Rds, P-Channel HEXFET Power MOSFET, TO-220")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 66989B4F)) 
+    (comp 
+      (ref R1) 
+      (value 10k) 
+      (footprint Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal) 
+      (datasheet ~) 
+      (libsource 
+        (lib Device) 
+        (part R_US) 
+        (description "Resistor, US symbol")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 6698BDA7)) 
+    (comp 
+      (ref R2) 
+      (value 1Meg) 
+      (footprint Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal) 
+      (datasheet ~) 
+      (libsource 
+        (lib Device) 
+        (part R_US) 
+        (description "Resistor, US symbol")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 669991E9)) 
+    (comp 
+      (ref J1) 
+      (value "OBD Male Connector") 
+      (footprint "OBD_Connectors:OBD-II Male Connector") 
+      (datasheet ~) 
+      (libsource 
+        (lib Connector_Generic) 
+        (part Conn_02x08_Top_Bottom) 
+        (description "Generic connector, double row, 02x08, top/bottom pin numbering scheme (row 1: 1...pins_per_row, row2: pins_per_row+1 ... num_pins), script generated (kicad-library-utils/schlib/autogen/connector/)")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 6699D9BD)) 
+    (comp 
+      (ref J2) 
+      (value "OBD Female Connector") 
+      (footprint "OBD_Connectors:OBD-II Female Connector") 
+      (datasheet ~) 
+      (libsource 
+        (lib Connector_Generic) 
+        (part Conn_02x08_Top_Bottom) 
+        (description "Generic connector, double row, 02x08, top/bottom pin numbering scheme (row 1: 1...pins_per_row, row2: pins_per_row+1 ... num_pins), script generated (kicad-library-utils/schlib/autogen/connector/)")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 669AABDF)) 
+    (comp 
+      (ref J3) 
+      (value Conn_01x02_Female) 
+      (footprint Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal) 
+      (datasheet ~) 
+      (libsource 
+        (lib Connector) 
+        (part Conn_01x02_Female) 
+        (description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 669BF845)) 
+    (comp 
+      (ref J4) 
+      (value Conn_01x02_Female) 
+      (footprint Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal) 
+      (datasheet ~) 
+      (libsource 
+        (lib Connector) 
+        (part Conn_01x02_Female) 
+        (description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 669D44DA)) 
+    (comp 
+      (ref J5) 
+      (value Conn_01x02_Female) 
+      (footprint Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal) 
+      (datasheet ~) 
+      (libsource 
+        (lib Connector) 
+        (part Conn_01x02_Female) 
+        (description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 669D7051)) 
+    (comp 
+      (ref J6) 
+      (value Conn_01x02_Female) 
+      (footprint Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal) 
+      (datasheet ~) 
+      (libsource 
+        (lib Connector) 
+        (part Conn_01x02_Female) 
+        (description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 669D8B09)) 
+    (comp 
+      (ref U1) 
+      (value L7805) 
+      (footprint Package_TO_SOT_THT:TO-220-3_Vertical) 
+      (datasheet http://www.st.com/content/ccc/resource/technical/document/datasheet/41/4f/b3/b0/12/d4/47/88/CD00000444.pdf/files/CD00000444.pdf/jcr:content/translations/en.CD00000444.pdf) 
+      (libsource 
+        (lib Regulator_Linear) 
+        (part L7805) 
+        (description "Positive 1.5A 35V Linear Regulator, Fixed Output 5V, TO-220/TO-263/TO-252")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 669EA3BD)) 
+    (comp 
+      (ref C2) 
+      (value 0.1uF) 
+      (footprint Capacitor_THT:CP_Radial_Tantal_D4.5mm_P2.50mm) 
+      (datasheet ~) 
+      (libsource 
+        (lib Device) 
+        (part C) 
+        (description "Unpolarized capacitor")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 669F3D1F)) 
+    (comp 
+      (ref D1) 
+      (value D) 
+      (footprint Diode_THT:D_DO-15_P12.70mm_Horizontal) 
+      (datasheet ~) 
+      (libsource 
+        (lib Device) 
+        (part D) 
+        (description Diode)) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 66A0A9F6)) 
+    (comp 
+      (ref C1) 
+      (value 0.33uF) 
+      (footprint Capacitor_THT:CP_Radial_Tantal_D4.5mm_P2.50mm) 
+      (datasheet ~) 
+      (libsource 
+        (lib Device) 
+        (part C) 
+        (description "Unpolarized capacitor")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 66A14550)) 
+    (comp 
+      (ref J9) 
+      (value Conn_01x02_Female) 
+      (footprint Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal) 
+      (datasheet ~) 
+      (libsource 
+        (lib Connector) 
+        (part Conn_01x02_Female) 
+        (description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 66A8B865)) 
+    (comp 
+      (ref J10) 
+      (value Conn_01x02_Female) 
+      (footprint Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal) 
+      (datasheet ~) 
+      (libsource 
+        (lib Connector) 
+        (part Conn_01x02_Female) 
+        (description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 66A8B874)) 
+    (comp 
+      (ref J11) 
+      (value Conn_01x02_Female) 
+      (footprint Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal) 
+      (datasheet ~) 
+      (libsource 
+        (lib Connector) 
+        (part Conn_01x02_Female) 
+        (description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 66A8B883)) 
+    (comp 
+      (ref J12) 
+      (value Conn_01x02_Female) 
+      (footprint Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal) 
+      (datasheet ~) 
+      (libsource 
+        (lib Connector) 
+        (part Conn_01x02_Female) 
+        (description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 66A8B892)) 
+    (comp 
+      (ref J7) 
+      (value ESP32) 
+      (footprint Pin_Headers_Special:ESP32_PinHeaders) 
+      (libsource 
+        (lib Pin_Headers_Special) 
+        (part ESP32) 
+        (description "")) 
+      (sheetpath 
+        (names /) 
+        (tstamps /)) 
+      (tstamp 66B5C4BB))) 
+  (libparts 
+    (libpart 
+      (lib Connector) 
+      (part Conn_01x02_Female) 
+      (description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)") 
+      (docs ~) 
+      (footprints 
+        (fp Connector*:*_1x??_*)) 
+      (fields 
+        (field 
+          (name Reference) J) 
+        (field 
+          (name Value) Conn_01x02_Female)) 
+      (pins 
+        (pin 
+          (num 1) 
+          (name Pin_1) 
+          (type passive)) 
+        (pin 
+          (num 2) 
+          (name Pin_2) 
+          (type passive)))) 
+    (libpart 
+      (lib Connector_Generic) 
+      (part Conn_02x08_Top_Bottom) 
+      (description "Generic connector, double row, 02x08, top/bottom pin numbering scheme (row 1: 1...pins_per_row, row2: pins_per_row+1 ... num_pins), script generated (kicad-library-utils/schlib/autogen/connector/)") 
+      (docs ~) 
+      (footprints 
+        (fp Connector*:*_2x??_*)) 
+      (fields 
+        (field 
+          (name Reference) J) 
+        (field 
+          (name Value) Conn_02x08_Top_Bottom)) 
+      (pins 
+        (pin 
+          (num 1) 
+          (name Pin_1) 
+          (type passive)) 
+        (pin 
+          (num 2) 
+          (name Pin_2) 
+          (type passive)) 
+        (pin 
+          (num 3) 
+          (name Pin_3) 
+          (type passive)) 
+        (pin 
+          (num 4) 
+          (name Pin_4) 
+          (type passive)) 
+        (pin 
+          (num 5) 
+          (name Pin_5) 
+          (type passive)) 
+        (pin 
+          (num 6) 
+          (name Pin_6) 
+          (type passive)) 
+        (pin 
+          (num 7) 
+          (name Pin_7) 
+          (type passive)) 
+        (pin 
+          (num 8) 
+          (name Pin_8) 
+          (type passive)) 
+        (pin 
+          (num 9) 
+          (name Pin_9) 
+          (type passive)) 
+        (pin 
+          (num 10) 
+          (name Pin_10) 
+          (type passive)) 
+        (pin 
+          (num 11) 
+          (name Pin_11) 
+          (type passive)) 
+        (pin 
+          (num 12) 
+          (name Pin_12) 
+          (type passive)) 
+        (pin 
+          (num 13) 
+          (name Pin_13) 
+          (type passive)) 
+        (pin 
+          (num 14) 
+          (name Pin_14) 
+          (type passive)) 
+        (pin 
+          (num 15) 
+          (name Pin_15) 
+          (type passive)) 
+        (pin 
+          (num 16) 
+          (name Pin_16) 
+          (type passive)))) 
+    (libpart 
+      (lib Device) 
+      (part C) 
+      (description "Unpolarized capacitor") 
+      (docs ~) 
+      (footprints 
+        (fp C_*)) 
+      (fields 
+        (field 
+          (name Reference) C) 
+        (field 
+          (name Value) C)) 
+      (pins 
+        (pin 
+          (num 1) 
+          (name ~) 
+          (type passive)) 
+        (pin 
+          (num 2) 
+          (name ~) 
+          (type passive)))) 
+    (libpart 
+      (lib Device) 
+      (part D) 
+      (description Diode) 
+      (docs ~) 
+      (footprints 
+        (fp TO-???*) 
+        (fp *_Diode_*) 
+        (fp *SingleDiode*) 
+        (fp D_*)) 
+      (fields 
+        (field 
+          (name Reference) D) 
+        (field 
+          (name Value) D)) 
+      (pins 
+        (pin 
+          (num 1) 
+          (name K) 
+          (type passive)) 
+        (pin 
+          (num 2) 
+          (name A) 
+          (type passive)))) 
+    (libpart 
+      (lib Device) 
+      (part R_US) 
+      (description "Resistor, US symbol") 
+      (docs ~) 
+      (footprints 
+        (fp R_*)) 
+      (fields 
+        (field 
+          (name Reference) R) 
+        (field 
+          (name Value) R_US)) 
+      (pins 
+        (pin 
+          (num 1) 
+          (name ~) 
+          (type passive)) 
+        (pin 
+          (num 2) 
+          (name ~) 
+          (type passive)))) 
+    (libpart 
+      (lib Pin_Headers_Special) 
+      (part ESP32) 
+      (fields 
+        (field 
+          (name Reference) J) 
+        (field 
+          (name Value) ESP32)) 
+      (pins 
+        (pin 
+          (num 1) 
+          (name 3V3) 
+          (type passive)) 
+        (pin 
+          (num 2) 
+          (name 3V3) 
+          (type passive)) 
+        (pin 
+          (num 3) 
+          (name RST) 
+          (type passive)) 
+        (pin 
+          (num 4) 
+          (name 4) 
+          (type passive)) 
+        (pin 
+          (num 5) 
+          (name 5) 
+          (type passive)) 
+        (pin 
+          (num 6) 
+          (name 6) 
+          (type passive)) 
+        (pin 
+          (num 7) 
+          (name 7) 
+          (type passive)) 
+        (pin 
+          (num 8) 
+          (name 15) 
+          (type passive)) 
+        (pin 
+          (num 9) 
+          (name 16) 
+          (type passive)) 
+        (pin 
+          (num 10) 
+          (name 17) 
+          (type passive)) 
+        (pin 
+          (num 11) 
+          (name 18) 
+          (type passive)) 
+        (pin 
+          (num 12) 
+          (name 8) 
+          (type passive)) 
+        (pin 
+          (num 13) 
+          (name 3) 
+          (type passive)) 
+        (pin 
+          (num 14) 
+          (name 46) 
+          (type passive)) 
+        (pin 
+          (num 15) 
+          (name 9) 
+          (type passive)) 
+        (pin 
+          (num 16) 
+          (name 10) 
+          (type passive)) 
+        (pin 
+          (num 17) 
+          (name 11) 
+          (type passive)) 
+        (pin 
+          (num 18) 
+          (name 12) 
+          (type passive)) 
+        (pin 
+          (num 19) 
+          (name 13) 
+          (type passive)) 
+        (pin 
+          (num 20) 
+          (name 14) 
+          (type passive)) 
+        (pin 
+          (num 21) 
+          (name 5V) 
+          (type passive)) 
+        (pin 
+          (num 22) 
+          (name G) 
+          (type passive)) 
+        (pin 
+          (num 23) 
+          (name G) 
+          (type passive)) 
+        (pin 
+          (num 24) 
+          (name TX) 
+          (type passive)) 
+        (pin 
+          (num 25) 
+          (name RX) 
+          (type passive)) 
+        (pin 
+          (num 26) 
+          (name 1) 
+          (type passive)) 
+        (pin 
+          (num 27) 
+          (name 2) 
+          (type passive)) 
+        (pin 
+          (num 28) 
+          (name 42) 
+          (type passive)) 
+        (pin 
+          (num 29) 
+          (name 41) 
+          (type passive)) 
+        (pin 
+          (num 30) 
+          (name 40) 
+          (type passive)) 
+        (pin 
+          (num 31) 
+          (name 39) 
+          (type passive)) 
+        (pin 
+          (num 32) 
+          (name 38) 
+          (type passive)) 
+        (pin 
+          (num 33) 
+          (name 37) 
+          (type passive)) 
+        (pin 
+          (num 34) 
+          (name 36) 
+          (type passive)) 
+        (pin 
+          (num 35) 
+          (name 35) 
+          (type passive)) 
+        (pin 
+          (num 36) 
+          (name 0) 
+          (type passive)) 
+        (pin 
+          (num 37) 
+          (name 45) 
+          (type passive)) 
+        (pin 
+          (num 38) 
+          (name 48) 
+          (type passive)) 
+        (pin 
+          (num 39) 
+          (name 47) 
+          (type passive)) 
+        (pin 
+          (num 40) 
+          (name 21) 
+          (type passive)) 
+        (pin 
+          (num 41) 
+          (name 20) 
+          (type passive)) 
+        (pin 
+          (num 42) 
+          (name 19) 
+          (type passive)) 
+        (pin 
+          (num 43) 
+          (name G) 
+          (type passive)) 
+        (pin 
+          (num 44) 
+          (name G) 
+          (type passive)))) 
+    (libpart 
+      (lib Regulator_Linear) 
+      (part L7805) 
+      (aliases 
+        (alias L7806) 
+        (alias L7808) 
+        (alias L7885) 
+        (alias L7809) 
+        (alias L7812) 
+        (alias L7815) 
+        (alias L7818) 
+        (alias L7824)) 
+      (description "Positive 1.5A 35V Linear Regulator, Fixed Output 5V, TO-220/TO-263/TO-252") 
+      (docs http://www.st.com/content/ccc/resource/technical/document/datasheet/41/4f/b3/b0/12/d4/47/88/CD00000444.pdf/files/CD00000444.pdf/jcr:content/translations/en.CD00000444.pdf) 
+      (footprints 
+        (fp TO?252*) 
+        (fp TO?263*) 
+        (fp TO?220*)) 
+      (fields 
+        (field 
+          (name Reference) U) 
+        (field 
+          (name Value) L7805)) 
+      (pins 
+        (pin 
+          (num 1) 
+          (name IN) 
+          (type power_in)) 
+        (pin 
+          (num 2) 
+          (name GND) 
+          (type power_in)) 
+        (pin 
+          (num 3) 
+          (name OUT) 
+          (type power_out)))) 
+    (libpart 
+      (lib Transistor_FET) 
+      (part BUZ11) 
+      (aliases 
+        (alias IRF3205) 
+        (alias IRF540N) 
+        (alias IRF740) 
+        (alias IRLB8721PBF) 
+        (alias IRLZ34N) 
+        (alias IRLZ44N) 
+        (alias VNP10N07) 
+        (alias IPP060N06N)) 
+      (description "30A Id, 50V Vds, N-Channel Power MOSFET, TO-220") 
+      (docs https://media.digikey.com/pdf/Data%20Sheets/Fairchild%20PDFs/BUZ11.pdf) 
+      (footprints 
+        (fp TO?220*)) 
+      (fields 
+        (field 
+          (name Reference) Q) 
+        (field 
+          (name Value) BUZ11) 
+        (field 
+          (name Footprint) Package_TO_SOT_THT:TO-220-3_Vertical)) 
+      (pins 
+        (pin 
+          (num 1) 
+          (name G) 
+          (type input)) 
+        (pin 
+          (num 2) 
+          (name D) 
+          (type passive)) 
+        (pin 
+          (num 3) 
+          (name S) 
+          (type passive)))) 
+    (libpart 
+      (lib Transistor_FET) 
+      (part IRF9540N) 
+      (aliases 
+        (alias IRF4905) 
+        (alias FQP27P06)) 
+      (description "-23A Id, -100V Vds, 117mOhm Rds, P-Channel HEXFET Power MOSFET, TO-220") 
+      (docs http://www.irf.com/product-info/datasheets/data/irf9540n.pdf) 
+      (footprints 
+        (fp TO?220*)) 
+      (fields 
+        (field 
+          (name Reference) Q) 
+        (field 
+          (name Value) IRF9540N) 
+        (field 
+          (name Footprint) Package_TO_SOT_THT:TO-220-3_Vertical)) 
+      (pins 
+        (pin 
+          (num 1) 
+          (name G) 
+          (type input)) 
+        (pin 
+          (num 2) 
+          (name D) 
+          (type passive)) 
+        (pin 
+          (num 3) 
+          (name S) 
+          (type passive))))) 
+  (libraries 
+    (library 
+      (logical Connector) 
+      (uri "/Library/Application Support/kicad/library/Connector.lib")) 
+    (library 
+      (logical Connector_Generic) 
+      (uri "/Library/Application Support/kicad/library/Connector_Generic.lib")) 
+    (library 
+      (logical Device) 
+      (uri "/Library/Application Support/kicad/library/Device.lib")) 
+    (library 
+      (logical Pin_Headers_Special) 
+      (uri "/Users/Abeed/Documents/R56 Mini MFD/OBD port power distribution board/Pin_Headers_Special.lib")) 
+    (library 
+      (logical Regulator_Linear) 
+      (uri "/Library/Application Support/kicad/library/Regulator_Linear.lib")) 
+    (library 
+      (logical Transistor_FET) 
+      (uri "/Library/Application Support/kicad/library/Transistor_FET.lib"))) 
+  (nets 
+    (net 
+      (code 1) 
+      (name V2) 
+      (node 
+        (ref Q1) 
+        (pin 1)) 
+      (node 
+        (ref J2) 
+        (pin 1)) 
+      (node 
+        (ref J1) 
+        (pin 1)) 
+      (node 
+        (ref R2) 
+        (pin 2))) 
+    (net 
+      (code 2) 
+      (name V1) 
+      (node 
+        (ref Q2) 
+        (pin 2)) 
+      (node 
+        (ref J1) 
+        (pin 16)) 
+      (node 
+        (ref R1) 
+        (pin 2))) 
+    (net 
+      (code 3) 
+      (name "Net-(Q1-Pad2)") 
+      (node 
+        (ref Q2) 
+        (pin 1)) 
+      (node 
+        (ref R1) 
+        (pin 1)) 
+      (node 
+        (ref Q1) 
+        (pin 2))) 
+    (net 
+      (code 4) 
+      (name V3) 
+      (node 
+        (ref C1) 
+        (pin 1)) 
+      (node 
+        (ref D1) 
+        (pin 1)) 
+      (node 
+        (ref U1) 
+        (pin 1)) 
+      (node 
+        (ref Q2) 
+        (pin 3)) 
+      (node 
+        (ref J2) 
+        (pin 16))) 
+    (net 
+      (code 5) 
+      (name GND) 
+      (node 
+        (ref U1) 
+        (pin 2)) 
+      (node 
+        (ref J9) 
+        (pin 2)) 
+      (node 
+        (ref J10) 
+        (pin 2)) 
+      (node 
+        (ref C1) 
+        (pin 2)) 
+      (node 
+        (ref J11) 
+        (pin 2)) 
+      (node 
+        (ref J2) 
+        (pin 4)) 
+      (node 
+        (ref Q1) 
+        (pin 3)) 
+      (node 
+        (ref J12) 
+        (pin 2)) 
+      (node 
+        (ref C2) 
+        (pin 2)) 
+      (node 
+        (ref J1) 
+        (pin 4)) 
+      (node 
+        (ref J7) 
+        (pin 22)) 
+      (node 
+        (ref J6) 
+        (pin 2)) 
+      (node 
+        (ref J5) 
+        (pin 2)) 
+      (node 
+        (ref R2) 
+        (pin 1)) 
+      (node 
+        (ref J3) 
+        (pin 2)) 
+      (node 
+        (ref J4) 
+        (pin 2))) 
+    (net 
+      (code 6) 
+      (name OBD_Pin2) 
+      (node 
+        (ref J2) 
+        (pin 2)) 
+      (node 
+        (ref J1) 
+        (pin 2))) 
+    (net 
+      (code 7) 
+      (name OBD_Pin3) 
+      (node 
+        (ref J2) 
+        (pin 3)) 
+      (node 
+        (ref J1) 
+        (pin 3))) 
+    (net 
+      (code 8) 
+      (name OBD_Pin5) 
+      (node 
+        (ref J1) 
+        (pin 5)) 
+      (node 
+        (ref J2) 
+        (pin 5))) 
+    (net 
+      (code 9) 
+      (name OBD_Pin6) 
+      (node 
+        (ref J1) 
+        (pin 6)) 
+      (node 
+        (ref J2) 
+        (pin 6))) 
+    (net 
+      (code 10) 
+      (name OBD_Pin7) 
+      (node 
+        (ref J1) 
+        (pin 7)) 
+      (node 
+        (ref J2) 
+        (pin 7))) 
+    (net 
+      (code 11) 
+      (name OBD_Pin8) 
+      (node 
+        (ref J2) 
+        (pin 8)) 
+      (node 
+        (ref J1) 
+        (pin 8))) 
+    (net 
+      (code 12) 
+      (name OBD_Pin15) 
+      (node 
+        (ref J2) 
+        (pin 15)) 
+      (node 
+        (ref J1) 
+        (pin 15))) 
+    (net 
+      (code 13) 
+      (name OBD_Pin14) 
+      (node 
+        (ref J2) 
+        (pin 14)) 
+      (node 
+        (ref J1) 
+        (pin 14))) 
+    (net 
+      (code 14) 
+      (name OBD_Pin13) 
+      (node 
+        (ref J1) 
+        (pin 13)) 
+      (node 
+        (ref J2) 
+        (pin 13))) 
+    (net 
+      (code 15) 
+      (name OBD_Pin12) 
+      (node 
+        (ref J1) 
+        (pin 12)) 
+      (node 
+        (ref J2) 
+        (pin 12))) 
+    (net 
+      (code 16) 
+      (name OBD_Pin11) 
+      (node 
+        (ref J1) 
+        (pin 11)) 
+      (node 
+        (ref J2) 
+        (pin 11))) 
+    (net 
+      (code 17) 
+      (name OBD_Pin10) 
+      (node 
+        (ref J2) 
+        (pin 10)) 
+      (node 
+        (ref J1) 
+        (pin 10))) 
+    (net 
+      (code 18) 
+      (name OBD_Pin9) 
+      (node 
+        (ref J1) 
+        (pin 9)) 
+      (node 
+        (ref J2) 
+        (pin 9))) 
+    (net 
+      (code 19) 
+      (name V4) 
+      (node 
+        (ref D1) 
+        (pin 2)) 
+      (node 
+        (ref J6) 
+        (pin 1)) 
+      (node 
+        (ref J3) 
+        (pin 1)) 
+      (node 
+        (ref J4) 
+        (pin 1)) 
+      (node 
+        (ref J5) 
+        (pin 1)) 
+      (node 
+        (ref U1) 
+        (pin 3)) 
+      (node 
+        (ref J7) 
+        (pin 21)) 
+      (node 
+        (ref C2) 
+        (pin 1))) 
+    (net 
+      (code 20) 
+      (name V5) 
+      (node 
+        (ref J7) 
+        (pin 1)) 
+      (node 
+        (ref J10) 
+        (pin 1)) 
+      (node 
+        (ref J9) 
+        (pin 1)) 
+      (node 
+        (ref J11) 
+        (pin 1)) 
+      (node 
+        (ref J12) 
+        (pin 1))) 
+    (net 
+      (code 21) 
+      (name "Net-(J7-Pad10)") 
+      (node 
+        (ref J7) 
+        (pin 10))) 
+    (net 
+      (code 22) 
+      (name "Net-(J7-Pad11)") 
+      (node 
+        (ref J7) 
+        (pin 11))) 
+    (net 
+      (code 23) 
+      (name "Net-(J7-Pad12)") 
+      (node 
+        (ref J7) 
+        (pin 12))) 
+    (net 
+      (code 24) 
+      (name "Net-(J7-Pad13)") 
+      (node 
+        (ref J7) 
+        (pin 13))) 
+    (net 
+      (code 25) 
+      (name "Net-(J7-Pad14)") 
+      (node 
+        (ref J7) 
+        (pin 14))) 
+    (net 
+      (code 26) 
+      (name "Net-(J7-Pad15)") 
+      (node 
+        (ref J7) 
+        (pin 15))) 
+    (net 
+      (code 27) 
+      (name "Net-(J7-Pad16)") 
+      (node 
+        (ref J7) 
+        (pin 16))) 
+    (net 
+      (code 28) 
+      (name "Net-(J7-Pad17)") 
+      (node 
+        (ref J7) 
+        (pin 17))) 
+    (net 
+      (code 29) 
+      (name "Net-(J7-Pad18)") 
+      (node 
+        (ref J7) 
+        (pin 18))) 
+    (net 
+      (code 30) 
+      (name "Net-(J7-Pad19)") 
+      (node 
+        (ref J7) 
+        (pin 19))) 
+    (net 
+      (code 31) 
+      (name "Net-(J7-Pad2)") 
+      (node 
+        (ref J7) 
+        (pin 2))) 
+    (net 
+      (code 32) 
+      (name "Net-(J7-Pad20)") 
+      (node 
+        (ref J7) 
+        (pin 20))) 
+    (net 
+      (code 33) 
+      (name "Net-(J7-Pad23)") 
+      (node 
+        (ref J7) 
+        (pin 23))) 
+    (net 
+      (code 34) 
+      (name "Net-(J7-Pad24)") 
+      (node 
+        (ref J7) 
+        (pin 24))) 
+    (net 
+      (code 35) 
+      (name "Net-(J7-Pad25)") 
+      (node 
+        (ref J7) 
+        (pin 25))) 
+    (net 
+      (code 36) 
+      (name "Net-(J7-Pad26)") 
+      (node 
+        (ref J7) 
+        (pin 26))) 
+    (net 
+      (code 37) 
+      (name "Net-(J7-Pad27)") 
+      (node 
+        (ref J7) 
+        (pin 27))) 
+    (net 
+      (code 38) 
+      (name "Net-(J7-Pad28)") 
+      (node 
+        (ref J7) 
+        (pin 28))) 
+    (net 
+      (code 39) 
+      (name "Net-(J7-Pad29)") 
+      (node 
+        (ref J7) 
+        (pin 29))) 
+    (net 
+      (code 40) 
+      (name "Net-(J7-Pad3)") 
+      (node 
+        (ref J7) 
+        (pin 3))) 
+    (net 
+      (code 41) 
+      (name "Net-(J7-Pad30)") 
+      (node 
+        (ref J7) 
+        (pin 30))) 
+    (net 
+      (code 42) 
+      (name "Net-(J7-Pad31)") 
+      (node 
+        (ref J7) 
+        (pin 31))) 
+    (net 
+      (code 43) 
+      (name "Net-(J7-Pad32)") 
+      (node 
+        (ref J7) 
+        (pin 32))) 
+    (net 
+      (code 44) 
+      (name "Net-(J7-Pad33)") 
+      (node 
+        (ref J7) 
+        (pin 33))) 
+    (net 
+      (code 45) 
+      (name "Net-(J7-Pad34)") 
+      (node 
+        (ref J7) 
+        (pin 34))) 
+    (net 
+      (code 46) 
+      (name "Net-(J7-Pad35)") 
+      (node 
+        (ref J7) 
+        (pin 35))) 
+    (net 
+      (code 47) 
+      (name "Net-(J7-Pad36)") 
+      (node 
+        (ref J7) 
+        (pin 36))) 
+    (net 
+      (code 48) 
+      (name "Net-(J7-Pad37)") 
+      (node 
+        (ref J7) 
+        (pin 37))) 
+    (net 
+      (code 49) 
+      (name "Net-(J7-Pad38)") 
+      (node 
+        (ref J7) 
+        (pin 38))) 
+    (net 
+      (code 50) 
+      (name "Net-(J7-Pad39)") 
+      (node 
+        (ref J7) 
+        (pin 39))) 
+    (net 
+      (code 51) 
+      (name "Net-(J7-Pad4)") 
+      (node 
+        (ref J7) 
+        (pin 4))) 
+    (net 
+      (code 52) 
+      (name "Net-(J7-Pad40)") 
+      (node 
+        (ref J7) 
+        (pin 40))) 
+    (net 
+      (code 53) 
+      (name "Net-(J7-Pad41)") 
+      (node 
+        (ref J7) 
+        (pin 41))) 
+    (net 
+      (code 54) 
+      (name "Net-(J7-Pad42)") 
+      (node 
+        (ref J7) 
+        (pin 42))) 
+    (net 
+      (code 55) 
+      (name "Net-(J7-Pad43)") 
+      (node 
+        (ref J7) 
+        (pin 43))) 
+    (net 
+      (code 56) 
+      (name "Net-(J7-Pad44)") 
+      (node 
+        (ref J7) 
+        (pin 44))) 
+    (net 
+      (code 57) 
+      (name "Net-(J7-Pad5)") 
+      (node 
+        (ref J7) 
+        (pin 5))) 
+    (net 
+      (code 58) 
+      (name "Net-(J7-Pad6)") 
+      (node 
+        (ref J7) 
+        (pin 6))) 
+    (net 
+      (code 59) 
+      (name "Net-(J7-Pad7)") 
+      (node 
+        (ref J7) 
+        (pin 7))) 
+    (net 
+      (code 60) 
+      (name "Net-(J7-Pad8)") 
+      (node 
+        (ref J7) 
+        (pin 8))) 
+    (net 
+      (code 61) 
+      (name "Net-(J7-Pad9)") 
+      (node 
+        (ref J7) 
+        (pin 9)))))
