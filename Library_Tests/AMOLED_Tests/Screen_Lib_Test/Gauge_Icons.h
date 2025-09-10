@@ -20,6 +20,7 @@
 #include "ind4_off.c"
 #include "ind4_on.c"
 
+#include "oiltemp_C.c"
 #include "MINI_font_numbers.c"
 // #include "MINI_font_letters.c"
 

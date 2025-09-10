@@ -9,6 +9,33 @@
 #define LV_TIMER_PERIOD_MS 2
 #define GAUGE_NUM_INDICES 9
 
+#define CTEMP_MIN 10
+#define CTEMP_MAX 170
+
+#define OTEMP_MIN 10
+#define OTEMP_MAX 170
+
+#define OPRESS_MIN 9
+#define OPRESS_MAX 99
+
+#define BPRESS_MIN 0
+#define BPRESS_MAX 12
+
+// define origins of each index image
+const uint16_t GAUGE_IND_POSITIONS[9][2] = 
+{
+  { 32, 290}, // top-left position of index 8
+  {  8, 210}, // top-left position of index 9
+  { 32, 106}, // top-left position of index 10
+  {103, 34 }, // top-left position of index 11
+  {208, 10 }, // top-left position of index 12
+  {287, 34 }, // top-left position of index 1
+  {340, 106}, // top-left position of index 2
+  {361, 210}, // top-left position of index 3
+  {340, 290}, // top-left position of index 4
+};
+
+
 typedef enum
 {
   GAUGE_TYPE_COOLANT_TEMP,
@@ -16,7 +43,7 @@ typedef enum
   GAUGE_TYPE_OIL_PRESS,
   GAUGE_TYPE_BOOST_PRESS,
   // G_METER,
-  GAUGE_TYPE_TRIP_INSIGHTS,
+  //GAUGE_TYPE_TRIP_INSIGHTS,
   GAUGE_TYPE_MAX,
 } GaugeType;
 
@@ -25,6 +52,13 @@ typedef struct
   int upperLim;
   int lowerLim;
 } Limits;
+
+const Limits GaugeLimits[4] = {
+  {CTEMP_MIN, CTEMP_MAX},
+  {OTEMP_MIN, OTEMP_MAX},
+  {OPRESS_MIN, OPRESS_MAX},
+  {BPRESS_MIN, BPRESS_MAX}
+};
 
 // Data type to update the gauge from external driver code
 typedef struct
@@ -76,8 +110,10 @@ class Gauge
     lv_obj_t *_scr; // active screen -- need to have multiple for different gauge types
 
     // array to refer to image objects
-    lv_obj_t *_gauge_img_ind[GAUGE_NUM_INDICES]; // pointer to image bitmaps
-    lv_img_dsc_t _gauge_img_dsc_ind[GAUGE_NUM_INDICES][2]; // pointer to image descriptors
+    lv_obj_t *_gauge_index_icons[GAUGE_NUM_INDICES]; // pointer to image bitmaps for gauge indices
+    lv_img_dsc_t _gauge_index_icons_dsc[GAUGE_NUM_INDICES][2]; // pointer to image descriptors
+    lv_obj_t *_gauge_sensor_icons[1]; // pointer to image bitmaps for sensor icon
+    lv_img_dsc_t _gauge_sensor_icons_dsc[1]; // pointer to image descriptors
 
     // LVGL drawing function callbacks
     static void disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
@@ -95,9 +131,10 @@ class Gauge
     void assignGaugeImages(lv_obj_t *parent);
 
     void paintGauge(int value);
+    void paintIcon();
     void paintValue(int value);
-    void paintIndex(char index, char state);
-    void paintIndices(char startIndex, char endIndex, char state);
+    void paintIndex(int index, char state);
+    void paintIndices(int startIndex, int endIndex, char state);
     void findNextGaugeState(int value, Limits limits, char* outState);
     void paintIcon(char icon);
     void paintUnit(char unit);
