@@ -9,38 +9,27 @@
 #define LV_TIMER_PERIOD_MS 2
 #define GAUGE_NUM_INDICES 9
 
-#define CTEMP_MIN 10
-#define CTEMP_MAX 170
-
 #define OTEMP_MIN 10
 #define OTEMP_MAX 170
+
+#define CTEMP_MIN 10
+#define CTEMP_MAX 170
 
 #define OPRESS_MIN 9
 #define OPRESS_MAX 99
 
+#define FPRESS_MIN 0
+#define FPRESS_MAX 1700
+
 #define BPRESS_MIN 0
 #define BPRESS_MAX 12
 
-// define origins of each index image
-const uint16_t GAUGE_IND_POSITIONS[9][2] = 
-{
-  { 32, 290}, // top-left position of index 8
-  {  8, 210}, // top-left position of index 9
-  { 32, 106}, // top-left position of index 10
-  {103, 34 }, // top-left position of index 11
-  {208, 10 }, // top-left position of index 12
-  {287, 34 }, // top-left position of index 1
-  {340, 106}, // top-left position of index 2
-  {361, 210}, // top-left position of index 3
-  {340, 290}, // top-left position of index 4
-};
-
-
 typedef enum
 {
-  GAUGE_TYPE_COOLANT_TEMP,
   GAUGE_TYPE_OIL_TEMP,
+  GAUGE_TYPE_COOLANT_TEMP,
   GAUGE_TYPE_OIL_PRESS,
+  GAUGE_TYPE_FUEL_PRESS,
   GAUGE_TYPE_BOOST_PRESS,
   // G_METER,
   //GAUGE_TYPE_TRIP_INSIGHTS,
@@ -49,15 +38,48 @@ typedef enum
 
 typedef struct
 {
-  int upperLim;
   int lowerLim;
+  int upperLim;
 } Limits;
 
-const Limits GaugeLimits[4] = {
-  {CTEMP_MIN, CTEMP_MAX},
+const Limits GaugeLimits[(int)GAUGE_TYPE_MAX] = {
   {OTEMP_MIN, OTEMP_MAX},
+  {CTEMP_MIN, CTEMP_MAX},
   {OPRESS_MIN, OPRESS_MAX},
+  {FPRESS_MIN, FPRESS_MAX},
   {BPRESS_MIN, BPRESS_MAX}
+};
+
+// define origins of each index image
+const uint16_t GAUGE_IND_POSITIONS[GAUGE_NUM_INDICES][2] = 
+{
+  {  30, 288 }, // top-left position of index 8
+  {   6, 208 }, // top-left position of index 9
+  {  30, 103 }, // top-left position of index 10
+  { 103, 30  }, // top-left position of index 11
+  { 208, 6   }, // top-left position of index 12
+  { 288, 30  }, // top-left position of index 1
+  { 341, 103 }, // top-left position of index 2
+  { 363, 208 }, // top-left position of index 3
+  { 341, 288 }, // top-left position of index 4
+};
+
+const uint16_t GAUGE_ICON_POSITIONS[(int)GAUGE_TYPE_MAX][2] = 
+{
+  { 155, 385 }, // top-left position of oil icon (temp)
+  { 178, 346 }, // top-left position of coolant icon (temp)
+  { 155, 385 }, // top-left position of oil icon (pressure)
+  { 167, 332 }, // top-left position of fuel icon (pressure)
+  { 191, 374 }, // top-left position of turbo icon (boost pressure)
+};
+
+const uint16_t GAUGE_UNIT_POSITIONS[(int)GAUGE_TYPE_MAX][2] = 
+{
+  { 209, 316 }, // top-left position of oil unit (deg C)
+  { 315, 346 }, // top-left position of coolant unit (deg C)
+  { 209, 316 }, // top-left position of oil unit (PSI)
+  { 315, 346 }, // top-left position of fuel unit (PSI)
+  { 209, 316 }, // top-left position of boost unit (PSI)
 };
 
 // Data type to update the gauge from external driver code
@@ -92,7 +114,7 @@ class Gauge
   public:
     Gauge();
     void begin();
-    void setType(GaugeType type);
+    int setType(GaugeType type);
     GaugeType getType();
     int update(GaugeData data);
     void printDebugMsg(String s);
@@ -107,13 +129,21 @@ class Gauge
     // screen specifics
     lv_obj_t *_label; // number displayed on screen
     lv_style_t _label_style; // style for the number displayed
-    lv_obj_t *_scr; // active screen -- need to have multiple for different gauge types
+    lv_obj_t *_main_screen; // active screen -- need to have multiple for different gauge types
 
     // array to refer to image objects
     lv_obj_t *_gauge_index_icons[GAUGE_NUM_INDICES]; // pointer to image bitmaps for gauge indices
     lv_img_dsc_t _gauge_index_icons_dsc[GAUGE_NUM_INDICES][2]; // pointer to image descriptors
-    lv_obj_t *_gauge_sensor_icons[1]; // pointer to image bitmaps for sensor icon
-    lv_img_dsc_t _gauge_sensor_icons_dsc[1]; // pointer to image descriptors
+
+    // variables for referring to the sensor icon images
+    lv_obj_t *_curr_sensor_icon;
+    lv_img_dsc_t _curr_sensor_icon_dsc;
+    lv_img_dsc_t _gauge_sensor_icons_dsc[(int)GAUGE_TYPE_MAX]; // pointer to image descriptors
+    
+    // variables for referring to the unit images
+    lv_obj_t *_curr_unit_icon;
+    lv_img_dsc_t _curr_unit_icon_dsc;
+    lv_img_dsc_t _gauge_unit_icons_dsc[(int)GAUGE_TYPE_MAX]; // pointer to image descriptors
 
     // LVGL drawing function callbacks
     static void disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
@@ -131,12 +161,11 @@ class Gauge
     void assignGaugeImages(lv_obj_t *parent);
 
     void paintGauge(int value);
-    void paintIcon();
+    void paintIcon(GaugeType type);
     void paintValue(int value);
     void paintIndex(int index, char state);
     void paintIndices(int startIndex, int endIndex, char state);
     void findNextGaugeState(int value, Limits limits, char* outState);
-    void paintIcon(char icon);
     void paintUnit(char unit);
     void clearIcon();
     void clearUnit();

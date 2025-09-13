@@ -5,10 +5,6 @@
 #define INDEX_OFF 0
 #define INDEX_CLEAR 2
 
-
-
-
-
 // Gauge object constructor
 // Parameters: none
 // Returns: none
@@ -57,14 +53,14 @@ void Gauge::begin() {
   disp_drv.user_data = this; // pass "this" pointer for callbacks to find vars from this fn
 
   // Configure main screen
-  // future note: multiple screens needed for using 
-  _scr = lv_scr_act(); 
-  lv_obj_set_style_bg_color(_scr, lv_color_hsv_to_rgb(11, 100, 25), LV_PART_MAIN);
-  createGaugeImages(_scr);
-  assignGaugeImages(_scr);
+  // future note: multiple screens needed for having G meter GUI, trip insights GUI
+  _main_screen = lv_scr_act(); 
+  lv_obj_set_style_bg_color(_main_screen, lv_color_hsv_to_rgb(11, 100, 25), LV_PART_MAIN);
+  createGaugeImages(_main_screen);
+  assignGaugeImages(_main_screen);
 
   // Configure number in the center of the gauge
-  _label = lv_label_create(_scr);
+  _label = lv_label_create(_main_screen);
   lv_style_init(&_label_style);
   lv_style_set_text_letter_space(&_label_style, -48);
   lv_style_set_text_color(&_label_style, lv_color_hex(0xfa4300)); 
@@ -84,24 +80,38 @@ void Gauge::begin() {
   esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer);
   esp_timer_start_periodic(lvgl_tick_timer, LV_TIMER_PERIOD_MS * 1000);
 
-  paintIcon(); // TEMPORARY
+  // initialize gauge as an oil temp gauge
+  setType(GAUGE_TYPE_OIL_TEMP);
 }
 
-void Gauge::setType(GaugeType type)
+int Gauge::setType(GaugeType type)
 {
-  // set the limits for the current gauge type (predefined)
-  _limits = GaugeLimits[int(type)];
-  // update the icon
-  if (type == GAUGE_TYPE_COOLANT_TEMP){
-
+  // avoid out of range error
+  if (type < 0 || type >= GAUGE_TYPE_MAX){
+    return -1;
   }
+  _gaugeType = type;
+  // set the limits for the current gauge type (predefined)
+  _limits = GaugeLimits[int(_gaugeType)];
+  // update the icon
+  paintIcon(_gaugeType);
+  return 0;
 }
 
-void Gauge::paintIcon()
+GaugeType Gauge::getType()
 {
-  lv_img_set_src(_gauge_sensor_icons[0], &_gauge_sensor_icons_dsc[0]);
-  // coolant temp
-  // x=151, y=317
+  return _gaugeType;
+}
+
+void Gauge::paintIcon(GaugeType type) // add param: GaugeType icon
+{
+  int index = (int)type;
+  // draw icon
+  lv_img_set_src(_curr_sensor_icon,  &_gauge_sensor_icons_dsc[index]);
+  lv_obj_set_pos(_curr_sensor_icon, GAUGE_ICON_POSITIONS[index][0], GAUGE_ICON_POSITIONS[index][1]);
+  // draw unit
+  lv_img_set_src(_curr_unit_icon,  &_gauge_unit_icons_dsc[index]);
+  lv_obj_set_pos(_curr_unit_icon, GAUGE_UNIT_POSITIONS[index][0], GAUGE_UNIT_POSITIONS[index][1]);
 }
 
 void Gauge::disp_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p) {
@@ -149,8 +159,17 @@ void Gauge::createGaugeImages(lv_obj_t *parent) {
   _gauge_index_icons_dsc[8][0] = img_ind4_off;
   _gauge_index_icons_dsc[8][1] = img_ind4_on;
 
-  // Gauge sensor icons (oiltemp, water temp, etc.)
-  _gauge_sensor_icons_dsc[0] = img_oiltemp_C;
+  // Gauge sensor icons (oiltemp, water temp, etc. + their corresponding unit)
+  _gauge_sensor_icons_dsc[0] = img_oil_icon;
+  _gauge_unit_icons_dsc[0] = img_degC_unit;
+  _gauge_sensor_icons_dsc[1] = img_coolant_icon;
+  _gauge_unit_icons_dsc[1] = img_degC_unit;
+  _gauge_sensor_icons_dsc[2] = img_oil_icon;
+  _gauge_unit_icons_dsc[2] = img_PSI_unit;
+  _gauge_sensor_icons_dsc[3] = img_fuel_icon;
+  _gauge_unit_icons_dsc[3] = img_PSI_unit;
+  _gauge_sensor_icons_dsc[4] = img_turbo_icon;
+  _gauge_unit_icons_dsc[4] = img_PSI_unit;
 }
 
 // fill out LVGL object sources/origins for each gauge index
@@ -163,12 +182,9 @@ void Gauge::assignGaugeImages(lv_obj_t *parent)
     lv_obj_set_pos(_gauge_index_icons[i], GAUGE_IND_POSITIONS[i][0], GAUGE_IND_POSITIONS[i][1]);
   }
 
-  // Gauge sensor icons (oiltemp, water temp, etc.)
-  for (int i = 0; i < 1; i++){
-    _gauge_sensor_icons[i] = lv_img_create(parent);
-    lv_img_set_src(_gauge_sensor_icons[i],  &_gauge_index_icons_dsc[i]);
-    lv_obj_set_pos(_gauge_sensor_icons[i], 151, 317); // TEMPORARY
-  }
+  _curr_sensor_icon = lv_img_create(parent);
+  _curr_unit_icon = lv_img_create(parent);
+
 }
 
 // Gauge.paintIndex()
@@ -275,11 +291,32 @@ void Gauge::paintValue(int value)
 
 int Gauge::update(GaugeData data)
 {
-  // temporary limit setting
-  _limits.lowerLim = 10;
-  _limits.upperLim = 170;
-  paintGauge(data.CoolantTemp);
-  paintValue(data.CoolantTemp);
+  int valueToUpdate = 0;
+  // save the updated data struct
+  _data = data;
+
+  switch(_gaugeType){
+    case GAUGE_TYPE_OIL_TEMP:
+      valueToUpdate = _data.OilTemp;
+      break; 
+    case GAUGE_TYPE_COOLANT_TEMP:
+      valueToUpdate = _data.CoolantTemp;
+      break; 
+    case GAUGE_TYPE_OIL_PRESS:
+      valueToUpdate = _data.OilPress;
+      break; 
+    case GAUGE_TYPE_FUEL_PRESS:
+      valueToUpdate = _data.FuelPress;
+      break; 
+    case GAUGE_TYPE_BOOST_PRESS:
+      valueToUpdate = _data.BoostPress;
+      break; 
+    case GAUGE_TYPE_MAX:
+      break;
+  }
+  
+  paintGauge(valueToUpdate);
+  paintValue(valueToUpdate);
   lv_timer_handler();
   return 0;
 }
