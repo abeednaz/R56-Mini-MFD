@@ -28,6 +28,10 @@
 #define BPRESS_MIN 0
 #define BPRESS_MAX 12
 
+#define IMAGES_ROOT "/images/main_gauge/"
+
+#define BINFILE_HEADER_SIZE 4
+
 typedef enum
 {
   GAUGE_TYPE_OIL_TEMP,
@@ -54,7 +58,7 @@ const Limits GaugeLimits[(int)GAUGE_TYPE_MAX] = {
   {BPRESS_MIN, BPRESS_MAX}
 };
 
-// define origins of each index image
+// define origins (top left) of each index image
 const uint16_t GAUGE_IND_POSITIONS[GAUGE_NUM_INDICES][2] = 
 {
   {  30, 288 }, // top-left position of index 8
@@ -67,7 +71,21 @@ const uint16_t GAUGE_IND_POSITIONS[GAUGE_NUM_INDICES][2] =
   { 363, 208 }, // top-left position of index 3
   { 341, 288 }, // top-left position of index 4
 };
+// define sizes of each index image
+const uint16_t GAUGE_IND_DIMENSIONS[GAUGE_NUM_INDICES][2] = 
+{
+  { 94, 75 }, // width, height of index 8
+  { 98, 50 }, // width, height of index 9
+  { 94, 75 }, // width, height of index 10
+  { 75, 94 }, // width, height of index 11
+  { 50, 98 }, // width, height of index 12
+  { 75, 94 }, // width, height of index 1
+  { 94, 75 }, // width, height of index 2
+  { 98, 50 }, // width, height of index 3
+  { 94, 75 }, // width, height of index 4
+};
 
+// define origins (top left) of each sensor icon image
 const uint16_t GAUGE_ICON_POSITIONS[(int)GAUGE_TYPE_MAX][2] = 
 {
   { 155, 385 }, // top-left position of oil icon (temp)
@@ -76,7 +94,17 @@ const uint16_t GAUGE_ICON_POSITIONS[(int)GAUGE_TYPE_MAX][2] =
   { 167, 332 }, // top-left position of fuel icon (pressure)
   { 191, 374 }, // top-left position of turbo icon (boost pressure)
 };
+// define sizes of each sensor icon image
+const uint16_t GAUGE_ICON_DIMENSIONS[(int)GAUGE_TYPE_MAX][2] = 
+{
+  { 161,  62 }, // width, height of oil icon (temp)
+  { 115, 105 }, // width, height of coolant icon (temp)
+  { 161,  62 }, // width, height of oil icon (pressure)
+  { 122, 122 }, // width, height of fuel icon (pressure)
+  { 161,  62 }, // width, height of turbo icon (boost pressure)
+};
 
+// define origins (top left) of each unit image
 const uint16_t GAUGE_UNIT_POSITIONS[(int)GAUGE_TYPE_MAX][2] = 
 {
   { 209, 316 }, // top-left position of oil unit (deg C)
@@ -84,6 +112,15 @@ const uint16_t GAUGE_UNIT_POSITIONS[(int)GAUGE_TYPE_MAX][2] =
   { 209, 316 }, // top-left position of oil unit (PSI)
   { 315, 346 }, // top-left position of fuel unit (PSI)
   { 209, 316 }, // top-left position of boost unit (PSI)
+};
+// define origins (top left) of each unit image
+const uint16_t GAUGE_UNIT_DIMENSIONS[(int)GAUGE_TYPE_MAX][2] = 
+{
+  { 53, 49 }, // width, height of oil unit (deg C)
+  { 53, 49 }, // width, height of coolant unit (deg C)
+  { 53, 49 }, // width, height of oil unit (PSI)
+  { 53, 49 }, // width, height of fuel unit (PSI)
+  { 53, 49 }, // width, height of boost unit (PSI)
 };
 
 // Data type to update the gauge from external driver code
@@ -124,6 +161,8 @@ class Gauge
     void printDebugMsg(String s);
 
   private:
+    /* ------------------------------ PRIVATE VARIABLES ------------------------------ */
+
     // Necessary variables for drawing to screen
     Arduino_DataBus *_bus;
     Arduino_GFX *_gfx;
@@ -161,7 +200,10 @@ class Gauge
     Limits _limits; // Integer limits of gauge
     GaugeData _data; // Data struct for gauge
 
-    uint8_t* loadImageDataToPSRAM(const char *path, size_t expectedSize);
+
+    /* ------------------------------ PRIVATE FUNCTIONS ------------------------------ */
+
+    // uint8_t* loadImageDataToPSRAM(const char *path, uint32_t *size);
     void createGaugeImages(lv_obj_t *parent); // during init, fill out array of image objects
     void assignGaugeImages(lv_obj_t *parent);
 

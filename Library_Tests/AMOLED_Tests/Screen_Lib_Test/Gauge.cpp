@@ -5,6 +5,112 @@
 #define INDEX_OFF 0
 #define INDEX_CLEAR 2
 
+namespace HelperFunctions {
+  // SD_Init()
+  // Parameters: none
+  // Returns: SD card filesize if able; if any failures occur then 0
+  int SD_Init() {
+    Wire.begin(IIC_SDA, IIC_SCL);
+    SD_MMC.setPins(SDMMC_CLK, SDMMC_CMD, SDMMC_DATA);
+
+    if (!SD_MMC.begin("/sdcard", true)) {
+      Serial.println("Card Mount Failed");
+      return 0;
+    }
+
+    uint8_t cardType = SD_MMC.cardType();
+    if (cardType == CARD_NONE) {
+      Serial.println("No SD_MMC card attached");
+      return 0;
+    }
+
+    Serial.print("SD_MMC Card Type: ");
+    if (cardType == CARD_MMC) {
+      Serial.println("MMC");
+    } else if (cardType == CARD_SD) {
+      Serial.println("SDSC");
+    } else if (cardType == CARD_SDHC) {
+      Serial.println("SDHC");
+    } else {
+      Serial.println("UNKNOWN");
+      return 0;
+    }
+
+    uint64_t cardSize = SD_MMC.cardSize() / (1024 * 1024);
+    Serial.println("SD_MMC Card Size: " + String(cardSize) + "MB");
+    return cardSize;
+  }
+
+  // Load_Image_Data_To_PSRAM()
+  // Goes into the mounted SD card and allocates a picture into PSRAM
+  // Parameters:
+  // - *path: string for the filepath to open (.bin file)
+  // - *size: int of the size received (to be read afterwards)
+  // Returns:
+  // - pointer to data saved in memory, or null if anything failed
+  uint8_t* Load_Image_Data_To_PSRAM(const char *path, uint32_t *size) {
+      File f = SD_MMC.open(path, FILE_READ);
+      // catch failure in mounted SD card
+      if (!f) {
+          Serial.printf("Failed to open %s\n", path);
+          *size = 0;
+          return nullptr;
+      }
+
+      size_t fileSize = f.size();
+      // catch any files that have no data/only a header
+      if (fileSize <= BINFILE_HEADER_SIZE) { 
+          Serial.printf("File too small: %s\n", path);
+          *size = 0;
+          f.close();
+          return nullptr;
+      }
+
+      // Allocate enough for everything after the header
+      size_t dataSize = fileSize - BINFILE_HEADER_SIZE;
+      uint8_t *buf = (uint8_t*)ps_malloc(dataSize);
+      if (!buf) {
+          Serial.printf("PSRAM alloc failed for %s (%d bytes)\n", path, dataSize);
+          *size = 0;
+          f.close();
+          return nullptr;
+      }
+
+      // Skip the header data from the binfile
+      f.seek(BINFILE_HEADER_SIZE);  
+      // Save everything after the header data
+      size_t bytesRead = f.read(buf, dataSize);
+      f.close();
+
+      if (bytesRead != dataSize) {
+          Serial.printf("Read error for %s\n", path);
+          free(buf);
+          *size = 0;
+          return nullptr;
+      }
+
+      *size = dataSize;
+      return buf;
+  }
+
+  lv_img_dsc_t Create_Blank_LV_Image_Dsc(uint32_t width, uint32_t height){
+    lv_img_dsc_t img_dsc = {
+      .header = {
+      .cf = LV_IMG_CF_RGB565A8,
+      .always_zero = 0,
+      .reserved = 0,
+      .w = width,
+      .h = height,
+      },
+      // data_size and data get updated by call to loadImageDataToPSRAM
+      .data_size = 0, 
+      .data = nullptr,
+    };
+    return img_dsc;
+  }
+
+}
+
 // Gauge object constructor
 // Parameters: none
 // Returns: none
@@ -34,32 +140,7 @@ Gauge::Gauge() //: _bus(nullptr), _gfx(nullptr)
 // Begins new gauge
 void Gauge::begin() {
   
-  Wire.begin(IIC_SDA, IIC_SCL);
-  SD_MMC.setPins(SDMMC_CLK, SDMMC_CMD, SDMMC_DATA);
-
-  if (!SD_MMC.begin("/sdcard", true)) {
-    Serial.println("Card Mount Failed");
-  }
-
-  uint8_t cardType = SD_MMC.cardType();
-  if (cardType == CARD_NONE) {
-    Serial.println("No SD_MMC card attached");
-  }
-
-  Serial.print("SD_MMC Card Type: ");
-  if (cardType == CARD_MMC) {
-    Serial.println("MMC");
-  } else if (cardType == CARD_SD) {
-    Serial.println("SDSC");
-  } else if (cardType == CARD_SDHC) {
-    Serial.println("SDHC");
-  } else {
-    Serial.println("UNKNOWN");
-  }
-
-  uint64_t cardSize = SD_MMC.cardSize() / (1024 * 1024);
-  Serial.println("SD_MMC Card Size: " + String(cardSize) + "MB");
-
+  HelperFunctions::SD_Init();
   
   _gfx->begin();
   // gfx->fillScreen(BLACK);
@@ -143,7 +224,8 @@ void Gauge::paintIcon(GaugeType type) // add param: GaugeType icon
   lv_obj_set_pos(_curr_unit_icon, GAUGE_UNIT_POSITIONS[index][0], GAUGE_UNIT_POSITIONS[index][1]);
 }
 
-void Gauge::disp_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p) {
+void Gauge::disp_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p) 
+{
     Gauge* self = static_cast<Gauge*>(disp->user_data); // inherit _gfx from Gauge object
 
     uint32_t w = (area->x2 - area->x1 + 1);
@@ -166,80 +248,59 @@ void Gauge::increase_lvgl_tick(void *arg) {
   lv_tick_inc(LV_TIMER_PERIOD_MS);
 }
 
-uint8_t* Gauge::loadImageDataToPSRAM(const char *path, size_t expectedSize) {
-  File f = SD_MMC.open(path, FILE_READ);
-  if(!f) {
-    Serial.printf("Failed to open %s\n", path);
-    return nullptr;
-  }
-
-  size_t fileSize = f.size();
-  if(fileSize != expectedSize) {
-    Serial.printf("Size mismatch! Expected %d, got %d\n", expectedSize, fileSize);
-    f.close();
-    return nullptr;
-  }
-
-  uint8_t *buf = (uint8_t*) ps_malloc(fileSize);
-  if(!buf) {
-    Serial.println("PSRAM alloc failed!");
-    f.close();
-    return nullptr;
-  }
-
-  f.read(buf, fileSize);
-  f.close();
-
-  return buf;  // caller will assign this to .data
-}
 
 
 // initialize array of gauge objects
 void Gauge::createGaugeImages(lv_obj_t *parent) {
+  // Strings to access index binfiles from SD card
+  char indices[GAUGE_NUM_INDICES] = { 8, 9, 10, 11, 12, 1, 2, 3, 4};
+  char buf1 [64]; char buf2 [64];
+  for(int i = 0; i < GAUGE_NUM_INDICES; i++){
+    lv_img_dsc_t img_index_off_dsc; lv_img_dsc_t img_index_on_dsc; 
+    int file_ind = indices[i];
+    sprintf(buf1, "%s%s%s%d%s", 
+      IMAGES_ROOT, 
+      "index/", 
+      "ind", file_ind, "_off.bin");
+    Serial.println(buf1);
+    sprintf(buf2, "%s%s%s%d%s", 
+      IMAGES_ROOT, 
+      "index/", 
+      "ind", file_ind, "_on.bin");
+    Serial.println(buf2);
+
+    img_index_off_dsc = HelperFunctions::Create_Blank_LV_Image_Dsc(GAUGE_IND_DIMENSIONS[i][0], GAUGE_IND_DIMENSIONS[i][1]);
+    img_index_on_dsc  = HelperFunctions::Create_Blank_LV_Image_Dsc(GAUGE_IND_DIMENSIONS[i][0], GAUGE_IND_DIMENSIONS[i][1]);
+    
+    uint8_t *img_index_off_map = HelperFunctions::Load_Image_Data_To_PSRAM( buf1, &img_index_off_dsc.data_size );
+    if(img_index_off_map) { img_index_off_dsc.data = img_index_off_map; }
+    uint8_t *img_index_on_map = HelperFunctions::Load_Image_Data_To_PSRAM( buf2, &img_index_on_dsc.data_size );
+    if(img_index_on_map) { img_index_on_dsc.data = img_index_on_map; }
+
+    _gauge_index_icons_dsc[i][0] = img_index_off_dsc;
+    _gauge_index_icons_dsc[i][1] = img_index_on_dsc;
+  }
+
   // Gauge measurement index icons
-  _gauge_index_icons_dsc[0][0] = img_ind8_off;
-  _gauge_index_icons_dsc[0][1] = img_ind8_on;
-  _gauge_index_icons_dsc[1][0] = img_ind9_off;
-  _gauge_index_icons_dsc[1][1] = img_ind9_on;
-  _gauge_index_icons_dsc[2][0] = img_ind10_off;
-  _gauge_index_icons_dsc[2][1] = img_ind10_on;
-  _gauge_index_icons_dsc[3][0] = img_ind11_off;
-  _gauge_index_icons_dsc[3][1] = img_ind11_on;
-  _gauge_index_icons_dsc[4][0] = img_ind12_off;
-  _gauge_index_icons_dsc[4][1] = img_ind12_on;
-  _gauge_index_icons_dsc[5][0] = img_ind1_off;
-  _gauge_index_icons_dsc[5][1] = img_ind1_on;
-  _gauge_index_icons_dsc[6][0] = img_ind2_off;
-  _gauge_index_icons_dsc[6][1] = img_ind2_on;
-  _gauge_index_icons_dsc[7][0] = img_ind3_off;
-  _gauge_index_icons_dsc[7][1] = img_ind3_on;
-  _gauge_index_icons_dsc[8][0] = img_ind4_off;
-  _gauge_index_icons_dsc[8][1] = img_ind4_on;
-/*
-  File f = SD.open("/images/main_gauge/unit/degC_unit.bin");
-  size_t size = f.size();
-  Serial.print("Size of binfile: ");
-  Serial.print(size);
-  Serial.println();
-
-  uint8_t *degC_unit_map = (uint8_t *)ps_malloc(size); // put in PSRAM
-  f.read(degC_unit_map, size);
-  f.close();
-
-  static lv_img_dsc_t img_degC_unit = {
-    .header = {
-    .cf = LV_IMG_CF_RGB565A8,
-    .always_zero = 0,
-    .reserved = 0,
-    .w = 53,
-    .h = 49,
-    },
-    .data_size = 7791,
-    .data = degC_unit_map,
-  };
-
-  Serial.println("got here");
-*/
+  // _gauge_index_icons_dsc[0][0] = img_ind8_off;
+  // _gauge_index_icons_dsc[0][1] = img_ind8_on;
+  // _gauge_index_icons_dsc[1][0] = img_ind9_off;
+  // _gauge_index_icons_dsc[1][1] = img_ind9_on;
+  // _gauge_index_icons_dsc[2][0] = img_ind10_off;
+  // _gauge_index_icons_dsc[2][1] = img_ind10_on;
+  // _gauge_index_icons_dsc[3][0] = img_ind11_off;
+  // _gauge_index_icons_dsc[3][1] = img_ind11_on;
+  // _gauge_index_icons_dsc[4][0] = img_ind12_off;
+  // _gauge_index_icons_dsc[4][1] = img_ind12_on;
+  // _gauge_index_icons_dsc[5][0] = img_ind1_off;
+  // _gauge_index_icons_dsc[5][1] = img_ind1_on;
+  // _gauge_index_icons_dsc[6][0] = img_ind2_off;
+  // _gauge_index_icons_dsc[6][1] = img_ind2_on;
+  // _gauge_index_icons_dsc[7][0] = img_ind3_off;
+  // _gauge_index_icons_dsc[7][1] = img_ind3_on;
+  // _gauge_index_icons_dsc[8][0] = img_ind4_off;
+  // _gauge_index_icons_dsc[8][1] = img_ind4_on;
+  
   lv_img_dsc_t img_degC_unit = {
     .header = {
     .cf = LV_IMG_CF_RGB565A8,
@@ -248,10 +309,14 @@ void Gauge::createGaugeImages(lv_obj_t *parent) {
     .w = 53,
     .h = 49,
     },
-    .data_size = 7791+4,
+    // data_size and data get updated by call to loadImageDataToPSRAM
+    .data_size = 0, 
     .data = nullptr,
   };
-  uint8_t *degC_unit_map = loadImageDataToPSRAM("/images/main_gauge/unit/degC_unit.bin", img_degC_unit.data_size);
+  uint8_t *degC_unit_map = HelperFunctions::Load_Image_Data_To_PSRAM(
+    "/images/main_gauge/unit/degC_unit.bin",
+    &img_degC_unit.data_size
+  );
   if(degC_unit_map) {
     img_degC_unit.data = degC_unit_map;
   }
@@ -302,7 +367,8 @@ void Gauge::paintIndex(int index, char state)
   }
 }
 
-void Gauge::paintIndices(int startIndex, int endIndex, char state) {
+void Gauge::paintIndices(int startIndex, int endIndex, char state) 
+{
   for (int i = startIndex; i <= endIndex; i++) {
     paintIndex(i, state);
   }
@@ -313,7 +379,8 @@ void Gauge::paintIndices(int startIndex, int endIndex, char state) {
 // Scaled based on range of current gauge in GaugePainter.cpp->lims[]
 // Parameters:
 // - value: value to paint
-void Gauge::paintGauge(int value) {
+void Gauge::paintGauge(int value) 
+{
   bool doRedraw = false;
   char nextGaugeState[GAUGE_NUM_INDICES];
 
@@ -358,7 +425,8 @@ void Gauge::paintGauge(int value) {
 }
 
 // calculate how many indices should be lit based on the input
-void Gauge::findNextGaugeState(int value, Limits limits, char* outState) {
+void Gauge::findNextGaugeState(int value, Limits limits, char* outState) 
+{
   int topIndex;
 
   // map the range of the value based on the limits for the current sensor
