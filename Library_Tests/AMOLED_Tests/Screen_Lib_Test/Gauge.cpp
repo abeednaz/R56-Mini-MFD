@@ -34,6 +34,33 @@ Gauge::Gauge() //: _bus(nullptr), _gfx(nullptr)
 // Begins new gauge
 void Gauge::begin() {
   
+  Wire.begin(IIC_SDA, IIC_SCL);
+  SD_MMC.setPins(SDMMC_CLK, SDMMC_CMD, SDMMC_DATA);
+
+  if (!SD_MMC.begin("/sdcard", true)) {
+    Serial.println("Card Mount Failed");
+  }
+
+  uint8_t cardType = SD_MMC.cardType();
+  if (cardType == CARD_NONE) {
+    Serial.println("No SD_MMC card attached");
+  }
+
+  Serial.print("SD_MMC Card Type: ");
+  if (cardType == CARD_MMC) {
+    Serial.println("MMC");
+  } else if (cardType == CARD_SD) {
+    Serial.println("SDSC");
+  } else if (cardType == CARD_SDHC) {
+    Serial.println("SDHC");
+  } else {
+    Serial.println("UNKNOWN");
+  }
+
+  uint64_t cardSize = SD_MMC.cardSize() / (1024 * 1024);
+  Serial.println("SD_MMC Card Size: " + String(cardSize) + "MB");
+
+  
   _gfx->begin();
   // gfx->fillScreen(BLACK);
   _gfx->Display_Brightness(255);
@@ -79,6 +106,8 @@ void Gauge::begin() {
   esp_timer_handle_t lvgl_tick_timer = NULL;
   esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer);
   esp_timer_start_periodic(lvgl_tick_timer, LV_TIMER_PERIOD_MS * 1000);
+
+  
 
   // initialize gauge as an oil temp gauge
   setType(GAUGE_TYPE_OIL_TEMP);
@@ -137,6 +166,34 @@ void Gauge::increase_lvgl_tick(void *arg) {
   lv_tick_inc(LV_TIMER_PERIOD_MS);
 }
 
+uint8_t* Gauge::loadImageDataToPSRAM(const char *path, size_t expectedSize) {
+  File f = SD_MMC.open(path, FILE_READ);
+  if(!f) {
+    Serial.printf("Failed to open %s\n", path);
+    return nullptr;
+  }
+
+  size_t fileSize = f.size();
+  if(fileSize != expectedSize) {
+    Serial.printf("Size mismatch! Expected %d, got %d\n", expectedSize, fileSize);
+    f.close();
+    return nullptr;
+  }
+
+  uint8_t *buf = (uint8_t*) ps_malloc(fileSize);
+  if(!buf) {
+    Serial.println("PSRAM alloc failed!");
+    f.close();
+    return nullptr;
+  }
+
+  f.read(buf, fileSize);
+  f.close();
+
+  return buf;  // caller will assign this to .data
+}
+
+
 // initialize array of gauge objects
 void Gauge::createGaugeImages(lv_obj_t *parent) {
   // Gauge measurement index icons
@@ -158,6 +215,47 @@ void Gauge::createGaugeImages(lv_obj_t *parent) {
   _gauge_index_icons_dsc[7][1] = img_ind3_on;
   _gauge_index_icons_dsc[8][0] = img_ind4_off;
   _gauge_index_icons_dsc[8][1] = img_ind4_on;
+/*
+  File f = SD.open("/images/main_gauge/unit/degC_unit.bin");
+  size_t size = f.size();
+  Serial.print("Size of binfile: ");
+  Serial.print(size);
+  Serial.println();
+
+  uint8_t *degC_unit_map = (uint8_t *)ps_malloc(size); // put in PSRAM
+  f.read(degC_unit_map, size);
+  f.close();
+
+  static lv_img_dsc_t img_degC_unit = {
+    .header = {
+    .cf = LV_IMG_CF_RGB565A8,
+    .always_zero = 0,
+    .reserved = 0,
+    .w = 53,
+    .h = 49,
+    },
+    .data_size = 7791,
+    .data = degC_unit_map,
+  };
+
+  Serial.println("got here");
+*/
+  lv_img_dsc_t img_degC_unit = {
+    .header = {
+    .cf = LV_IMG_CF_RGB565A8,
+    .always_zero = 0,
+    .reserved = 0,
+    .w = 53,
+    .h = 49,
+    },
+    .data_size = 7791+4,
+    .data = nullptr,
+  };
+  uint8_t *degC_unit_map = loadImageDataToPSRAM("/images/main_gauge/unit/degC_unit.bin", img_degC_unit.data_size);
+  if(degC_unit_map) {
+    img_degC_unit.data = degC_unit_map;
+  }
+
 
   // Gauge sensor icons (oiltemp, water temp, etc. + their corresponding unit)
   _gauge_sensor_icons_dsc[0] = img_oil_icon;

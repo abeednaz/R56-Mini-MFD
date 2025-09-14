@@ -6,6 +6,10 @@
 #include <Arduino_GFX_Library.h>
 #include "Gauge_Icons.h" // Bitmap images for gauge icons are defined here
 
+// SD card includes
+#include <Wire.h>
+#include <SD_MMC.h>
+
 #define LV_TIMER_PERIOD_MS 2
 #define GAUGE_NUM_INDICES 9
 
@@ -157,6 +161,7 @@ class Gauge
     Limits _limits; // Integer limits of gauge
     GaugeData _data; // Data struct for gauge
 
+    uint8_t* loadImageDataToPSRAM(const char *path, size_t expectedSize);
     void createGaugeImages(lv_obj_t *parent); // during init, fill out array of image objects
     void assignGaugeImages(lv_obj_t *parent);
 

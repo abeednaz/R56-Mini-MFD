@@ -25,7 +25,7 @@
 #include "fuel_icon.c"
 #include "turbo_icon.c"
 #include "PSI_unit.c"
-#include "degC_unit.c"
+// #include "degC_unit.c"
 
 #include "MINI_font_numbers.c"
 // #include "MINI_font_letters.c"
