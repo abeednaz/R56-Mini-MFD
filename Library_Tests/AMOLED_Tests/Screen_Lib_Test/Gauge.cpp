@@ -42,9 +42,9 @@ namespace HelperFunctions {
   }
 
   // Load_Image_Data_To_PSRAM()
-  // Goes into the mounted SD card and allocates a picture into PSRAM
+  // Given an SD card individual filepath, allocates a picture into PSRAM
   // Parameters:
-  // - *path: string for the filepath to open (.bin file)
+  // - *path: string for the filepath to open off the SD card (.bin file)
   // - *size: int of the size received (to be read afterwards)
   // Returns:
   // - pointer to data saved in memory, or null if anything failed
@@ -109,6 +109,44 @@ namespace HelperFunctions {
     return img_dsc;
   }
 
+  // Load_Image_Data_To_Descriptors()
+  // Goes into SD card and calls load function to load many images into PSRAM
+  // Parameters:
+  // - *image_descriptors: pointer to LVGL image descriptors struct
+  // - type: ICON_TYPE or UNIT_TYPE 
+  // Returns:
+  // - None (*image_descriptors is modified in this function)
+  void Load_Image_Data_To_Descriptors(lv_img_dsc_t* image_descriptors, char type){
+    // uint16_t* dims; char* filenames;
+    const uint16_t (*dims)[2]; const char (*filenames)[32]; char subpath[16];
+    if (type == ICON_TYPE){
+      dims = GAUGE_ICON_DIMENSIONS;
+      filenames = GAUGE_ICON_FILENAMES;
+      strcpy(subpath, "icon/");
+    } else if (type == UNIT_TYPE) {
+      dims = GAUGE_UNIT_DIMENSIONS;
+      filenames = GAUGE_UNIT_FILENAMES;
+      strcpy(subpath, "unit/");
+    } else {
+      return;
+    }
+    char buf1 [256];
+    for(int i = 0; i < (int)GAUGE_TYPE_MAX; i++){
+      lv_img_dsc_t img_dsc; 
+      // construct the filepath to go to
+      sprintf(buf1, "%s%s%s", 
+        IMAGES_ROOT, 
+        subpath, 
+        filenames[i]);
+      Serial.println(buf1);
+      img_dsc = Create_Blank_LV_Image_Dsc(dims[i][0], dims[i][1]);
+      uint8_t *img_map = Load_Image_Data_To_PSRAM( buf1, &img_dsc.data_size );
+      if(img_map) { img_dsc.data = img_map; }
+
+      // update the image descriptors
+      image_descriptors[i] = img_dsc;
+    }
+  }
 }
 
 // Gauge object constructor
@@ -188,8 +226,6 @@ void Gauge::begin() {
   esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer);
   esp_timer_start_periodic(lvgl_tick_timer, LV_TIMER_PERIOD_MS * 1000);
 
-  
-
   // initialize gauge as an oil temp gauge
   setType(GAUGE_TYPE_OIL_TEMP);
 }
@@ -254,7 +290,8 @@ void Gauge::increase_lvgl_tick(void *arg) {
 void Gauge::createGaugeImages(lv_obj_t *parent) {
   // Strings to access index binfiles from SD card
   char indices[GAUGE_NUM_INDICES] = { 8, 9, 10, 11, 12, 1, 2, 3, 4};
-  char buf1 [64]; char buf2 [64];
+  char buf1 [256]; char buf2 [256];
+  // TODO: transfer below code to a helper function for 2D version of Load_Image_Data_To_Descriptors
   for(int i = 0; i < GAUGE_NUM_INDICES; i++){
     lv_img_dsc_t img_index_off_dsc; lv_img_dsc_t img_index_on_dsc; 
     int file_ind = indices[i];
@@ -280,59 +317,9 @@ void Gauge::createGaugeImages(lv_obj_t *parent) {
     _gauge_index_icons_dsc[i][0] = img_index_off_dsc;
     _gauge_index_icons_dsc[i][1] = img_index_on_dsc;
   }
-
-  // Gauge measurement index icons
-  // _gauge_index_icons_dsc[0][0] = img_ind8_off;
-  // _gauge_index_icons_dsc[0][1] = img_ind8_on;
-  // _gauge_index_icons_dsc[1][0] = img_ind9_off;
-  // _gauge_index_icons_dsc[1][1] = img_ind9_on;
-  // _gauge_index_icons_dsc[2][0] = img_ind10_off;
-  // _gauge_index_icons_dsc[2][1] = img_ind10_on;
-  // _gauge_index_icons_dsc[3][0] = img_ind11_off;
-  // _gauge_index_icons_dsc[3][1] = img_ind11_on;
-  // _gauge_index_icons_dsc[4][0] = img_ind12_off;
-  // _gauge_index_icons_dsc[4][1] = img_ind12_on;
-  // _gauge_index_icons_dsc[5][0] = img_ind1_off;
-  // _gauge_index_icons_dsc[5][1] = img_ind1_on;
-  // _gauge_index_icons_dsc[6][0] = img_ind2_off;
-  // _gauge_index_icons_dsc[6][1] = img_ind2_on;
-  // _gauge_index_icons_dsc[7][0] = img_ind3_off;
-  // _gauge_index_icons_dsc[7][1] = img_ind3_on;
-  // _gauge_index_icons_dsc[8][0] = img_ind4_off;
-  // _gauge_index_icons_dsc[8][1] = img_ind4_on;
   
-  lv_img_dsc_t img_degC_unit = {
-    .header = {
-    .cf = LV_IMG_CF_RGB565A8,
-    .always_zero = 0,
-    .reserved = 0,
-    .w = 53,
-    .h = 49,
-    },
-    // data_size and data get updated by call to loadImageDataToPSRAM
-    .data_size = 0, 
-    .data = nullptr,
-  };
-  uint8_t *degC_unit_map = HelperFunctions::Load_Image_Data_To_PSRAM(
-    "/images/main_gauge/unit/degC_unit.bin",
-    &img_degC_unit.data_size
-  );
-  if(degC_unit_map) {
-    img_degC_unit.data = degC_unit_map;
-  }
-
-
-  // Gauge sensor icons (oiltemp, water temp, etc. + their corresponding unit)
-  _gauge_sensor_icons_dsc[0] = img_oil_icon;
-  _gauge_unit_icons_dsc[0] = img_degC_unit;
-  _gauge_sensor_icons_dsc[1] = img_coolant_icon;
-  _gauge_unit_icons_dsc[1] = img_degC_unit;
-  _gauge_sensor_icons_dsc[2] = img_oil_icon;
-  _gauge_unit_icons_dsc[2] = img_PSI_unit;
-  _gauge_sensor_icons_dsc[3] = img_fuel_icon;
-  _gauge_unit_icons_dsc[3] = img_PSI_unit;
-  _gauge_sensor_icons_dsc[4] = img_turbo_icon;
-  _gauge_unit_icons_dsc[4] = img_PSI_unit;
+  HelperFunctions::Load_Image_Data_To_Descriptors(_gauge_sensor_icons_dsc, ICON_TYPE);
+  HelperFunctions::Load_Image_Data_To_Descriptors(_gauge_unit_icons_dsc, UNIT_TYPE);
 }
 
 // fill out LVGL object sources/origins for each gauge index

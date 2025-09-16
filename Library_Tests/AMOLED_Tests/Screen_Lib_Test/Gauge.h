@@ -32,6 +32,9 @@
 
 #define BINFILE_HEADER_SIZE 4
 
+#define ICON_TYPE 1
+#define UNIT_TYPE 2
+
 typedef enum
 {
   GAUGE_TYPE_OIL_TEMP,
@@ -101,16 +104,25 @@ const uint16_t GAUGE_ICON_DIMENSIONS[(int)GAUGE_TYPE_MAX][2] =
   { 115, 105 }, // width, height of coolant icon (temp)
   { 161,  62 }, // width, height of oil icon (pressure)
   { 122, 122 }, // width, height of fuel icon (pressure)
-  { 161,  62 }, // width, height of turbo icon (boost pressure)
+  {  88,  80 }, // width, height of turbo icon (boost pressure)
+};
+
+const char GAUGE_ICON_FILENAMES[GAUGE_TYPE_MAX][32] = 
+{
+  "oil_icon.bin",
+  "coolant_icon.bin",
+  "oil_icon.bin",
+  "fuel_icon.bin",
+  "turbo_icon.bin",
 };
 
 // define origins (top left) of each unit image
 const uint16_t GAUGE_UNIT_POSITIONS[(int)GAUGE_TYPE_MAX][2] = 
 {
   { 209, 316 }, // top-left position of oil unit (deg C)
-  { 315, 346 }, // top-left position of coolant unit (deg C)
+  { 300, 346 }, // top-left position of coolant unit (deg C)
   { 209, 316 }, // top-left position of oil unit (PSI)
-  { 315, 346 }, // top-left position of fuel unit (PSI)
+  { 300, 346 }, // top-left position of fuel unit (PSI)
   { 209, 316 }, // top-left position of boost unit (PSI)
 };
 // define origins (top left) of each unit image
@@ -121,6 +133,14 @@ const uint16_t GAUGE_UNIT_DIMENSIONS[(int)GAUGE_TYPE_MAX][2] =
   { 53, 49 }, // width, height of oil unit (PSI)
   { 53, 49 }, // width, height of fuel unit (PSI)
   { 53, 49 }, // width, height of boost unit (PSI)
+};
+const char GAUGE_UNIT_FILENAMES[(int)GAUGE_TYPE_MAX][32] = 
+{
+  "degC_unit.bin",
+  "degC_unit.bin",
+  "PSI_unit.bin",
+  "PSI_unit.bin",
+  "PSI_unit.bin",
 };
 
 // Data type to update the gauge from external driver code

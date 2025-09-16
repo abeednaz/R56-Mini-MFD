@@ -20,11 +20,11 @@
 // #include "ind4_off.c"
 // #include "ind4_on.c"
 
-#include "oil_icon.c"
-#include "coolant_icon.c"
-#include "fuel_icon.c"
-#include "turbo_icon.c"
-#include "PSI_unit.c"
+// #include "oil_icon.c"
+// #include "coolant_icon.c"
+// #include "fuel_icon.c"
+// #include "turbo_icon.c"
+// #include "PSI_unit.c"
 // #include "degC_unit.c"
 
 #include "MINI_font_numbers.c"
