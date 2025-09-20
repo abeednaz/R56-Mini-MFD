@@ -1,9 +1,19 @@
 #include "Gauge.h"
 
+// SD card includes
+#include <Wire.h>
+#include <SD_MMC.h>
+
+#include "lv_port_fs.h"
+
 
 #define INDEX_ON 1
 #define INDEX_OFF 0
 #define INDEX_CLEAR 2
+
+namespace LV_FileSys {
+
+}
 
 namespace HelperFunctions {
   // SD_Init()
@@ -177,8 +187,9 @@ Gauge::Gauge() //: _bus(nullptr), _gfx(nullptr)
 // Returns: none
 // Begins new gauge
 void Gauge::begin() {
-  
+  Serial.println("Got to start of begin()");
   HelperFunctions::SD_Init();
+  Serial.println("Finished SD_Init()");
   
   _gfx->begin();
   // gfx->fillScreen(BLACK);
@@ -187,6 +198,7 @@ void Gauge::begin() {
   lv_init();
   lv_disp_draw_buf_init(&_draw_buf, _buf, NULL, LCD_WIDTH * 10);
 
+  // Display driver configuration / fn callbacks definition
   static lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv);
   disp_drv.hor_res = LCD_WIDTH;
@@ -198,6 +210,11 @@ void Gauge::begin() {
 
   disp_drv.user_data = this; // pass "this" pointer for callbacks to find vars from this fn
 
+  Serial.println("Got to start of lv_port_fs_init()");
+  // File system driver configuration / fn callbacks definition
+  lv_port_fs_init();
+  Serial.println("Finished lv_port_fs_init()");
+
   // Configure main screen
   // future note: multiple screens needed for having G meter GUI, trip insights GUI
   _main_screen = lv_scr_act(); 
@@ -205,12 +222,22 @@ void Gauge::begin() {
   createGaugeImages(_main_screen);
   assignGaugeImages(_main_screen);
 
+  // font definition
+  lv_font_t * MINI_font_numbers;
+  MINI_font_numbers = lv_font_load("S:/images/main_gauge/font/MINI_font_numbers_96.bin");
+  if(MINI_font_numbers == NULL) {
+    Serial.println("Font load failed!");
+  } else {
+    Serial.println("Font loaded OK.");
+  }
+
+
   // Configure number in the center of the gauge
   _label = lv_label_create(_main_screen);
   lv_style_init(&_label_style);
   lv_style_set_text_letter_space(&_label_style, -48);
   lv_style_set_text_color(&_label_style, lv_color_hex(0xfa4300)); 
-  lv_obj_set_style_text_font(_label, &MINI_font_numbers, LV_PART_MAIN); 
+  lv_obj_set_style_text_font(_label, MINI_font_numbers, LV_PART_MAIN); 
   lv_obj_add_style(_label, &_label_style, int(LV_PART_MAIN) | int(LV_STATE_DEFAULT));
 
     // Set up timer for LVGL
@@ -228,6 +255,8 @@ void Gauge::begin() {
 
   // initialize gauge as an oil temp gauge
   setType(GAUGE_TYPE_OIL_TEMP);
+
+  // while(1); // TEMPORARY STOP
 }
 
 int Gauge::setType(GaugeType type)

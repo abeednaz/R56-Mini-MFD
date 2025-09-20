@@ -27,7 +27,7 @@
 // #include "PSI_unit.c"
 // #include "degC_unit.c"
 
-#include "MINI_font_numbers.c"
+// #include "MINI_font_numbers.c"
 // #include "MINI_font_letters.c"
 
 #endif // __GAUGE_ICONS_H

@@ -6,10 +6,6 @@
 #include <Arduino_GFX_Library.h>
 #include "Gauge_Icons.h" // Bitmap images for gauge icons are defined here
 
-// SD card includes
-#include <Wire.h>
-#include <SD_MMC.h>
-
 #define LV_TIMER_PERIOD_MS 2
 #define GAUGE_NUM_INDICES 9
 
