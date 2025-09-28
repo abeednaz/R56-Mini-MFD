@@ -1,3 +1,9 @@
+/**
+ * @file Gauge.h
+ * Header file for Gauge library
+ * Intended for use with Waveshare ESP32-S3-Touch-AMOLED-1.75 module
+ */
+
 #ifndef __GAUGE_H
 #define __GAUGE_H
 
@@ -20,13 +26,6 @@
 
 #define BPRESS_MIN 0
 #define BPRESS_MAX 12
-
-#define IMAGES_ROOT "/images/main_gauge/"
-
-#define BINFILE_HEADER_SIZE 4
-
-#define ICON_TYPE 1
-#define UNIT_TYPE 2
 
 typedef enum
 {
@@ -54,6 +53,19 @@ const Limits GaugeLimits[(int)GAUGE_TYPE_MAX] = {
   {BPRESS_MIN, BPRESS_MAX}
 };
 
+const char GAUGE_IND_FILENAMES[GAUGE_NUM_INDICES][32] = 
+{
+  "ind8_off.bin",
+  "ind9_off.bin",
+  "ind10_off.bin",
+  "ind11_off.bin",
+  "ind12_off.bin",
+  "ind1_off.bin",
+  "ind2_off.bin",
+  "ind3_off.bin",
+  "ind4_off.bin",
+};
+
 // define origins (top left) of each index image
 const uint16_t GAUGE_IND_POSITIONS[GAUGE_NUM_INDICES][2] = 
 {
@@ -67,6 +79,7 @@ const uint16_t GAUGE_IND_POSITIONS[GAUGE_NUM_INDICES][2] =
   { 363, 208 }, // top-left position of index 3
   { 341, 288 }, // top-left position of index 4
 };
+
 // define sizes of each index image
 const uint16_t GAUGE_IND_DIMENSIONS[GAUGE_NUM_INDICES][2] = 
 {
@@ -172,6 +185,7 @@ class Gauge
     GaugeType getType();
     int update(GaugeData data);
     void printDebugMsg(String s);
+    void setBrightness(uint8_t brightness);
 
   private:
     /* ------------------------------ PRIVATE VARIABLES ------------------------------ */

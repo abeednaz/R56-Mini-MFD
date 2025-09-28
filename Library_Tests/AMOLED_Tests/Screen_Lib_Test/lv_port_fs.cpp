@@ -1,6 +1,13 @@
 /**
  * @file lv_port_fs.c
+ * Implementation of LVGL filesystem driver
+ * Intended for use with Waveshare ESP32-S3-Touch-AMOLED-1.75 module
+ *   with an external SD card mounted in the module
  *
+ * Note: for simplicity of Arduino IDE compilation, this file is written to C formatting
+ * while using a .cpp file extension
+ *
+ * Adapted from: https://github.com/lvgl/lvgl/blob/master/examples/porting/lv_port_fs_template.c
  */
 
 /*Copy this file as "lv_port_fs.c" and set this value to "1" to enable content*/

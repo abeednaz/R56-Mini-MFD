@@ -1,6 +1,12 @@
 /**
  * @file lv_screen_driver.cpp
+ * Implementation of LVGL screen driver
+ * Intended for use with Waveshare ESP32-S3-Touch-AMOLED-1.75 module
+ * 
+ * Note: for simplicity of Arduino IDE compilation, this file is written to C formatting
+ * while using a .cpp file extension
  *
+ * Adapted from: https://github.com/lvgl/lvgl/blob/master/examples/porting/lv_port_fs_template.c
  */
 
 /*Copy this file as "lv_screen_driver.cpp" and set this value to "1" to enable content*/
@@ -98,10 +104,16 @@ void lv_screen_driver_init(void)
   esp_timer_start_periodic(lvgl_tick_timer, LV_TIMER_PERIOD_MS * 1000);
 }
 
+void lv_screen_set_brightness(uint8_t brightness)
+{
+  _gfx->Display_Brightness(brightness);
+}
+
 /**********************
  *   STATIC FUNCTIONS
  **********************/
 
+// Flush the content of the internal buffer the specific area on the display.
 static void disp_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p) 
 {
   uint32_t w = (area->x2 - area->x1 + 1);

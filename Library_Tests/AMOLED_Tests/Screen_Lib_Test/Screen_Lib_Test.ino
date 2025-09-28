@@ -32,7 +32,8 @@ void setup() {
 *                                 MAIN DRIVER                                 *
 ******************************************************************************/
 void loop() {
-  static GaugeData data; static int i = 0; static GaugeType type = GAUGE_TYPE_OIL_TEMP;
+  static GaugeData data; static GaugeType type = GAUGE_TYPE_OIL_TEMP;
+  static int i = 0;
 
   data.CoolantTemp = random(0,200);
   data.OilTemp = random(0,200);
@@ -44,6 +45,7 @@ void loop() {
   if (i == 20){
     type = (GaugeType)( ((int)type + 1) % 5 );
     mainGauge.setType(type);
+    mainGauge.setBrightness(random(100, 255));
     i = 0;
   }
   mainGauge.update(data);

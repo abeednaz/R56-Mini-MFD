@@ -1,5 +1,15 @@
+/**
+ * @file Gauge.cpp
+ * Implementation of Gauge library
+ * Intended for use with Waveshare ESP32-S3-Touch-AMOLED-1.75 module
+ */
+
+/******************************************************************************
+*                              LIBRARY INCLUDES
+******************************************************************************/
 #include "Gauge.h"
 
+// AMOLED devboard pin definitions
 #include "pin_config.h" 
 
 // SD card includes
@@ -9,12 +19,28 @@
 #include "lv_port_fs.h" // LVGL filesystem driver for pulling images/fonts
 #include "lv_screen_driver.h" // LVGL screen driver for accessing screen
 
+/******************************************************************************
+*                                  DEFINES
+******************************************************************************/
+
+#define IMAGES_ROOT "/images/main_gauge/"
 
 #define INDEX_ON 1
 #define INDEX_OFF 0
 #define INDEX_CLEAR 2
 
-namespace HelperFunctions {
+#define ICON_TYPE 1
+#define UNIT_TYPE 2
+#define IND_TYPE  3
+
+#define BINFILE_HEADER_SIZE 4
+
+
+/******************************************************************************
+*                              HELPER FUNCTIONS
+******************************************************************************/
+
+namespace ImageDrawing {
   // SD_Init()
   // Parameters: none
   // Returns: SD card filesize if able; if any failures occur then 0
@@ -57,6 +83,11 @@ namespace HelperFunctions {
   // - *size: int of the size received (to be read afterwards)
   // Returns:
   // - pointer to data saved in memory, or null if anything failed
+  // Notes:
+  // LVGL allows for setting image source at runtime using 
+  // (i.e.) lv_img_set_src(icon, "S:my_icon.bin");
+  // This function preloads the image into PSRAM so the source can be set more quickly
+  // rather than accessing the SD card every time an image is updated
   uint8_t* Load_Image_Data_To_PSRAM(const char *path, uint32_t *size) {
       File f = SD_MMC.open(path, FILE_READ);
       // catch failure in mounted SD card
@@ -125,113 +156,93 @@ namespace HelperFunctions {
   // - type: ICON_TYPE or UNIT_TYPE 
   // Returns:
   // - None (*image_descriptors is modified in this function)
-  void Load_Image_Data_To_Descriptors(lv_img_dsc_t* image_descriptors, char type){
-    // uint16_t* dims; char* filenames;
-    const uint16_t (*dims)[2]; const char (*filenames)[32]; char subpath[16];
-    if (type == ICON_TYPE){
-      dims = GAUGE_ICON_DIMENSIONS;
-      filenames = GAUGE_ICON_FILENAMES;
-      strcpy(subpath, "icon/");
-    } else if (type == UNIT_TYPE) {
-      dims = GAUGE_UNIT_DIMENSIONS;
-      filenames = GAUGE_UNIT_FILENAMES;
-      strcpy(subpath, "unit/");
-    } else {
-      return;
-    }
-    char buf1 [256];
-    for(int i = 0; i < (int)GAUGE_TYPE_MAX; i++){
-      lv_img_dsc_t img_dsc; 
-      // construct the filepath to go to
-      sprintf(buf1, "%s%s%s", 
-        IMAGES_ROOT, 
-        subpath, 
-        filenames[i]);
-      Serial.println(buf1);
-      img_dsc = Create_Blank_LV_Image_Dsc(dims[i][0], dims[i][1]);
-      uint8_t *img_map = Load_Image_Data_To_PSRAM( buf1, &img_dsc.data_size );
-      if(img_map) { img_dsc.data = img_map; }
+  // Notes:
+  // - Function is overloaded to allow for 1D lv_img_dsc_t array (icons & units)
+  //   and for 2d lv_img_dsc_t array (on/off indices)
 
-      // update the image descriptors
-      image_descriptors[i] = img_dsc;
-    }
-  }
-}
+  // --- Overload for 1D array (icons, units) ---
+  void Load_Image_Data_To_Descriptors(lv_img_dsc_t img_dsc_1D[], char type) {
+      const uint16_t (*dims)[2];
+      const char (*filenames)[32];
+      char subpath[16];
+      char buf1[256];
 
-// Gauge object constructor
-// Parameters: none
-// Returns: none
-// Constructor for new Gauge object
-Gauge::Gauge() //: _bus(nullptr), _gfx(nullptr)
-{
-  ;
-}
+      if (type == ICON_TYPE) {
+          dims = GAUGE_ICON_DIMENSIONS;
+          filenames = GAUGE_ICON_FILENAMES;
+          strcpy(subpath, "icon/");
+      } else if (type == UNIT_TYPE) {
+          dims = GAUGE_UNIT_DIMENSIONS;
+          filenames = GAUGE_UNIT_FILENAMES;
+          strcpy(subpath, "unit/");
+      } else {
+          return; // not valid for 1D
+      }
 
-// Gauge.begin()
-// Parameters: pins
-// Returns: none
-// Begins new gauge
-void Gauge::begin() {
-  // Serial.println("Got to start of begin()");
-  HelperFunctions::SD_Init();
-  // Serial.println("Finished SD_Init()");
-  
-  lv_init();
+      for (int i = 0; i < (int)GAUGE_TYPE_MAX; i++) {
+          lv_img_dsc_t img_dsc;
 
-  lv_screen_driver_init();
-  lv_port_fs_init();
+          // construct filepath
+          sprintf(buf1, "%s%s%s", IMAGES_ROOT, subpath, filenames[i]);
+          Serial.println(buf1);
 
-  // Configure main screen
-  // future note: multiple screens needed for having G meter GUI, trip insights GUI
-  _main_screen = lv_scr_act(); 
-  lv_obj_set_style_bg_color(_main_screen, lv_color_hsv_to_rgb(11, 100, 25), LV_PART_MAIN);
-  createGaugeImages(_main_screen);
-  assignGaugeImages(_main_screen);
+          img_dsc = Create_Blank_LV_Image_Dsc(dims[i][0], dims[i][1]);
+          uint8_t *img_map = Load_Image_Data_To_PSRAM(buf1, &img_dsc.data_size);
+          if (img_map) { img_dsc.data = img_map; }
 
-  // font definition
-  lv_font_t * MINI_font_numbers;
-  MINI_font_numbers = lv_font_load("S:/images/main_gauge/font/MINI_font_numbers_96.bin");
-  if(MINI_font_numbers == NULL) {
-    Serial.println("Font load failed!");
-  } else {
-    Serial.println("Font loaded OK.");
+          // update array
+          img_dsc_1D[i] = img_dsc;
+      }
   }
 
+  // --- Overload for 2D array (indices) ---
+  void Load_Image_Data_To_Descriptors(lv_img_dsc_t img_dsc_2D[][2], char type) {
+      if (type != IND_TYPE) return;
 
-  // Configure number in the center of the gauge
-  _label = lv_label_create(_main_screen);
-  lv_style_init(&_label_style);
-  lv_style_set_text_letter_space(&_label_style, -48);
-  lv_style_set_text_color(&_label_style, lv_color_hex(0xfa4300)); 
-  lv_obj_set_style_text_font(_label, MINI_font_numbers, LV_PART_MAIN); 
-  lv_obj_add_style(_label, &_label_style, int(LV_PART_MAIN) | int(LV_STATE_DEFAULT));
+      const uint16_t (*dims)[2] = GAUGE_IND_DIMENSIONS;
+      char buf1[256], buf2[256];
+      char indices[GAUGE_NUM_INDICES] = { 8, 9, 10, 11, 12, 1, 2, 3, 4 };
 
-  // initialize gauge as an oil temp gauge
-  setType(GAUGE_TYPE_OIL_TEMP);
+      for (int i = 0; i < GAUGE_NUM_INDICES; i++) {
+          lv_img_dsc_t img_index_off_dsc;
+          lv_img_dsc_t img_index_on_dsc;
+          int file_ind = indices[i];
 
-  // while(1); // TEMPORARY STOP
-}
+          sprintf(buf1, "%sindex/ind%d_off.bin", IMAGES_ROOT, file_ind);
+          sprintf(buf2, "%sindex/ind%d_on.bin",  IMAGES_ROOT, file_ind);
+          Serial.println(buf1);
+          Serial.println(buf2);
 
-int Gauge::setType(GaugeType type)
-{
-  // avoid out of range error
-  if (type < 0 || type >= GAUGE_TYPE_MAX){
-    return -1;
+          img_index_off_dsc = Create_Blank_LV_Image_Dsc(dims[i][0], dims[i][1]);
+          img_index_on_dsc  = Create_Blank_LV_Image_Dsc(dims[i][0], dims[i][1]);
+
+          uint8_t *img_index_off_map =
+              Load_Image_Data_To_PSRAM(buf1, &img_index_off_dsc.data_size);
+          if (img_index_off_map) { img_index_off_dsc.data = img_index_off_map; }
+
+          uint8_t *img_index_on_map =
+              Load_Image_Data_To_PSRAM(buf2, &img_index_on_dsc.data_size);
+          if (img_index_on_map) { img_index_on_dsc.data = img_index_on_map; }
+
+          img_dsc_2D[i][0] = img_index_off_dsc;
+          img_dsc_2D[i][1] = img_index_on_dsc;
+      }
   }
-  _gaugeType = type;
-  // set the limits for the current gauge type (predefined)
-  _limits = GaugeLimits[int(_gaugeType)];
-  // update the icon
-  paintIcon(_gaugeType);
-  return 0;
+
 }
 
-GaugeType Gauge::getType()
-{
-  return _gaugeType;
-}
+/******************************************************************************
+*                              PRIVATE FUNCTIONS
+******************************************************************************/
 
-void Gauge::paintIcon(GaugeType type) // add param: GaugeType icon
+
+// Gauge.paintIcon()
+// paint the icon and unit for which sensor is being displayed
+// Parameters:
+// - type: which sensor type should be displayed (oiltemp, boostpress, etc.)
+// Returns:
+// - None
+void Gauge::paintIcon(GaugeType type)
 {
   int index = (int)type;
   // draw icon
@@ -242,43 +253,24 @@ void Gauge::paintIcon(GaugeType type) // add param: GaugeType icon
   lv_obj_set_pos(_curr_unit_icon, GAUGE_UNIT_POSITIONS[index][0], GAUGE_UNIT_POSITIONS[index][1]);
 }
 
+// Gauge.createGaugeImages()
 // initialize array of gauge objects
+// Parameters:
+// - *parent: LVGL screen to create the image in
+// Returns:
+// - None
 void Gauge::createGaugeImages(lv_obj_t *parent) {
-  // Strings to access index binfiles from SD card
-  char indices[GAUGE_NUM_INDICES] = { 8, 9, 10, 11, 12, 1, 2, 3, 4};
-  char buf1 [256]; char buf2 [256];
-  // TODO: transfer below code to a helper function for 2D version of Load_Image_Data_To_Descriptors
-  for(int i = 0; i < GAUGE_NUM_INDICES; i++){
-    lv_img_dsc_t img_index_off_dsc; lv_img_dsc_t img_index_on_dsc; 
-    int file_ind = indices[i];
-    sprintf(buf1, "%s%s%s%d%s", 
-      IMAGES_ROOT, 
-      "index/", 
-      "ind", file_ind, "_off.bin");
-    Serial.println(buf1);
-    sprintf(buf2, "%s%s%s%d%s", 
-      IMAGES_ROOT, 
-      "index/", 
-      "ind", file_ind, "_on.bin");
-    Serial.println(buf2);
-
-    img_index_off_dsc = HelperFunctions::Create_Blank_LV_Image_Dsc(GAUGE_IND_DIMENSIONS[i][0], GAUGE_IND_DIMENSIONS[i][1]);
-    img_index_on_dsc  = HelperFunctions::Create_Blank_LV_Image_Dsc(GAUGE_IND_DIMENSIONS[i][0], GAUGE_IND_DIMENSIONS[i][1]);
-    
-    uint8_t *img_index_off_map = HelperFunctions::Load_Image_Data_To_PSRAM( buf1, &img_index_off_dsc.data_size );
-    if(img_index_off_map) { img_index_off_dsc.data = img_index_off_map; }
-    uint8_t *img_index_on_map = HelperFunctions::Load_Image_Data_To_PSRAM( buf2, &img_index_on_dsc.data_size );
-    if(img_index_on_map) { img_index_on_dsc.data = img_index_on_map; }
-
-    _gauge_index_icons_dsc[i][0] = img_index_off_dsc;
-    _gauge_index_icons_dsc[i][1] = img_index_on_dsc;
-  }
-  
-  HelperFunctions::Load_Image_Data_To_Descriptors(_gauge_sensor_icons_dsc, ICON_TYPE);
-  HelperFunctions::Load_Image_Data_To_Descriptors(_gauge_unit_icons_dsc, UNIT_TYPE);
+  ImageDrawing::Load_Image_Data_To_Descriptors(_gauge_index_icons_dsc, IND_TYPE);
+  ImageDrawing::Load_Image_Data_To_Descriptors(_gauge_sensor_icons_dsc, ICON_TYPE);
+  ImageDrawing::Load_Image_Data_To_Descriptors(_gauge_unit_icons_dsc, UNIT_TYPE);
 }
 
+// Gauge.assignGaugeImages()
 // fill out LVGL object sources/origins for each gauge index
+// Parameters:
+// - *parent: LVGL screen to create the image in
+// Returns:
+// - None
 void Gauge::assignGaugeImages(lv_obj_t *parent)
 {
   // Gauge measurement index images
@@ -310,6 +302,11 @@ void Gauge::paintIndex(int index, char state)
   }
 }
 
+// Gauge.paintIndices()
+// Parameters:
+// - startIndex: index of the gauge to begin painting on (0 thru 8, inclusive)
+// - endIndex: index of the gauge to end painting on (0 thru 8, inclusive)
+// - state: color to paint index (0 = off/black, 1 = on/FG color)
 void Gauge::paintIndices(int startIndex, int endIndex, char state) 
 {
   for (int i = startIndex; i <= endIndex; i++) {
@@ -321,7 +318,9 @@ void Gauge::paintIndices(int startIndex, int endIndex, char state)
 // Paints gauge indices based on input value
 // Scaled based on range of current gauge in GaugePainter.cpp->lims[]
 // Parameters:
-// - value: value to paint
+// - value: value of the sensor
+// Returns:
+// - None
 void Gauge::paintGauge(int value) 
 {
   bool doRedraw = false;
@@ -367,7 +366,15 @@ void Gauge::paintGauge(int value)
   _gaugeValue_raw = value;
 }
 
+// Gauge.findNextGaugeState
 // calculate how many indices should be lit based on the input
+// Scaled based on range of current gauge in GaugePainter.cpp->lims[]
+// Parameters:
+// - value: numerical parameter
+// - limits: limits of the active sensor
+// - outState: array of which indices should be on/off
+// Returns:
+// - None (*outState is modified in this function)
 void Gauge::findNextGaugeState(int value, Limits limits, char* outState) 
 {
   int topIndex;
@@ -388,6 +395,12 @@ void Gauge::findNextGaugeState(int value, Limits limits, char* outState)
   
 }
 
+// Gauge.paintValue
+// Prints the numerical parameter to the center of the screen
+// Parameters:
+// - value: numerical parameter
+// Returns:
+// - None
 void Gauge::paintValue(int value)
 {
   char value_str[8];
@@ -398,12 +411,111 @@ void Gauge::paintValue(int value)
   lv_obj_align(_label, LV_ALIGN_CENTER, 0, 0);
 }
 
+/******************************************************************************
+*                              PUBLIC FUNCTIONS
+******************************************************************************/
+
+// Gauge()
+// Constructor for new Gauge object 
+// Parameters: 
+// - none
+// Returns: 
+// - none
+Gauge::Gauge() 
+{
+  ;
+}
+
+// Gauge.begin()
+// Initialize parameters for gauge
+// Parameters: 
+// - none
+// Returns: 
+// - none
+void Gauge::begin() {
+  ImageDrawing::SD_Init();
+  
+  lv_init();
+
+  lv_screen_driver_init();
+  lv_port_fs_init();
+
+  // Configure main screen
+  // future note: multiple screens needed for having G meter GUI, trip insights GUI
+  _main_screen = lv_scr_act(); 
+  lv_obj_set_style_bg_color(_main_screen, lv_color_hsv_to_rgb(11, 100, 25), LV_PART_MAIN);
+  createGaugeImages(_main_screen);
+  assignGaugeImages(_main_screen);
+
+  // font definition
+  lv_font_t * MINI_font_numbers;
+  MINI_font_numbers = lv_font_load("S:/images/main_gauge/font/MINI_font_numbers_96.bin");
+  if(MINI_font_numbers == NULL) {
+    Serial.println("Font load failed!");
+  } else {
+    Serial.println("Font loaded OK.");
+  }
+
+  // Configure number in the center of the gauge
+  _label = lv_label_create(_main_screen);
+  lv_style_init(&_label_style);
+  lv_style_set_text_letter_space(&_label_style, -48);
+  lv_style_set_text_color(&_label_style, lv_color_hex(0xfa4300)); 
+  lv_obj_set_style_text_font(_label, MINI_font_numbers, LV_PART_MAIN); 
+  lv_obj_add_style(_label, &_label_style, int(LV_PART_MAIN) | int(LV_STATE_DEFAULT));
+
+  // initialize gauge as an oil temp gauge
+  setType(GAUGE_TYPE_OIL_TEMP);
+
+  // while(1); // TEMPORARY STOP
+}
+
+// Gauge.setType()
+// Set the gauge type (oiltemp, boostpress, etc.)
+// Parameters: 
+// - type: desired GaugeType
+// Returns: 
+// - 0 if successful
+// - -1 if failed
+int Gauge::setType(GaugeType type)
+{
+  // avoid out of range error
+  if (type < 0 || type >= GAUGE_TYPE_MAX){
+    return -1;
+  }
+  _gaugeType = type;
+  // set the limits for the current gauge type (predefined)
+  _limits = GaugeLimits[int(_gaugeType)];
+  // update the icon
+  paintIcon(_gaugeType);
+  return 0;
+}
+
+// Gauge.getType()
+// Get the current gauge type (oiltemp, boostpress, etc.)
+// Parameters: 
+// - none
+// Returns: 
+// - _gaugeType: current GaugeType
+GaugeType Gauge::getType()
+{
+  return _gaugeType;
+}
+
+// Gauge.update()
+// Main function for interfacing with driver program
+// Updates internal GaugeData struct, prints center value, paints indices as needed
+// Parameters:
+// - data: a full GaugeData struct
+// Returns:
+// - 0 if successful
 int Gauge::update(GaugeData data)
 {
   int valueToUpdate = 0;
   // save the updated data struct
   _data = data;
 
+  // choose the value to print
   switch(_gaugeType){
     case GAUGE_TYPE_OIL_TEMP:
       valueToUpdate = _data.OilTemp;
@@ -424,9 +536,21 @@ int Gauge::update(GaugeData data)
       break;
   }
   
+  // update the gauge and indices with the current value
   paintGauge(valueToUpdate);
   paintValue(valueToUpdate);
+  // allow LVGL to continue updating the screen
   lv_timer_handler();
   return 0;
 }
 
+// Gauge.setBrightness()
+// Set brightness of the display
+// Parameters:
+// - brightness: 0-255
+// Returns:
+// - none
+void Gauge::setBrightness(uint8_t brightness)
+{
+  lv_screen_set_brightness(brightness);
+}

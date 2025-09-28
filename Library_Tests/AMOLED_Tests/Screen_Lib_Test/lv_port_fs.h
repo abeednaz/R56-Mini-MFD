@@ -1,6 +1,10 @@
 /**
  * @file lv_port_fs.h
+ * Header file for LVGL filesystem driver
+ * Intended for use with Waveshare ESP32-S3-Touch-AMOLED-1.75 module
+ *   with an external SD card mounted in the module
  *
+ * Adapted from: https://github.com/lvgl/lvgl/blob/master/examples/porting/lv_port_fs_template.c
  */
 
 /*Copy this file as "lv_port_fs.h" and set this value to "1" to enable content*/
