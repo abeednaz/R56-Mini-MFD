@@ -1,19 +1,18 @@
 #include "Gauge.h"
 
+#include "pin_config.h" 
+
 // SD card includes
 #include <Wire.h>
 #include <SD_MMC.h>
 
-#include "lv_port_fs.h"
+#include "lv_port_fs.h" // LVGL filesystem driver for pulling images/fonts
+#include "lv_screen_driver.h" // LVGL screen driver for accessing screen
 
 
 #define INDEX_ON 1
 #define INDEX_OFF 0
 #define INDEX_CLEAR 2
-
-namespace LV_FileSys {
-
-}
 
 namespace HelperFunctions {
   // SD_Init()
@@ -165,21 +164,7 @@ namespace HelperFunctions {
 // Constructor for new Gauge object
 Gauge::Gauge() //: _bus(nullptr), _gfx(nullptr)
 {
-  // Allocate and initialize bus
-  _bus = new Arduino_ESP32QSPI(
-      LCD_CS, LCD_SCLK, LCD_SDIO0, LCD_SDIO1,
-      LCD_SDIO2, LCD_SDIO3
-  );
-
-  // Allocate and initialize gfx
-  _gfx = new Arduino_CO5300(
-      _bus, 
-      LCD_RESET, 
-      0, 
-      false, 
-      LCD_WIDTH, LCD_HEIGHT, 
-      6, 0, 0, 0
-  );
+  ;
 }
 
 // Gauge.begin()
@@ -187,33 +172,14 @@ Gauge::Gauge() //: _bus(nullptr), _gfx(nullptr)
 // Returns: none
 // Begins new gauge
 void Gauge::begin() {
-  Serial.println("Got to start of begin()");
+  // Serial.println("Got to start of begin()");
   HelperFunctions::SD_Init();
-  Serial.println("Finished SD_Init()");
+  // Serial.println("Finished SD_Init()");
   
-  _gfx->begin();
-  // gfx->fillScreen(BLACK);
-  _gfx->Display_Brightness(255);
-
   lv_init();
-  lv_disp_draw_buf_init(&_draw_buf, _buf, NULL, LCD_WIDTH * 10);
 
-  // Display driver configuration / fn callbacks definition
-  static lv_disp_drv_t disp_drv;
-  lv_disp_drv_init(&disp_drv);
-  disp_drv.hor_res = LCD_WIDTH;
-  disp_drv.ver_res = LCD_HEIGHT;
-  disp_drv.flush_cb = disp_flush;
-  disp_drv.rounder_cb = lvgl_rounder_cb;
-  disp_drv.draw_buf = &_draw_buf;
-  lv_disp_drv_register(&disp_drv);
-
-  disp_drv.user_data = this; // pass "this" pointer for callbacks to find vars from this fn
-
-  Serial.println("Got to start of lv_port_fs_init()");
-  // File system driver configuration / fn callbacks definition
+  lv_screen_driver_init();
   lv_port_fs_init();
-  Serial.println("Finished lv_port_fs_init()");
 
   // Configure main screen
   // future note: multiple screens needed for having G meter GUI, trip insights GUI
@@ -239,19 +205,6 @@ void Gauge::begin() {
   lv_style_set_text_color(&_label_style, lv_color_hex(0xfa4300)); 
   lv_obj_set_style_text_font(_label, MINI_font_numbers, LV_PART_MAIN); 
   lv_obj_add_style(_label, &_label_style, int(LV_PART_MAIN) | int(LV_STATE_DEFAULT));
-
-    // Set up timer for LVGL
-  const esp_timer_create_args_t lvgl_tick_timer_args = {
-    .callback = &Gauge::increase_lvgl_tick,
-    .arg = nullptr,
-    .dispatch_method = ESP_TIMER_TASK,
-    .name = "lvgl_tick",
-    .skip_unhandled_events = false
-  };
-  
-  esp_timer_handle_t lvgl_tick_timer = NULL;
-  esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer);
-  esp_timer_start_periodic(lvgl_tick_timer, LV_TIMER_PERIOD_MS * 1000);
 
   // initialize gauge as an oil temp gauge
   setType(GAUGE_TYPE_OIL_TEMP);
@@ -288,32 +241,6 @@ void Gauge::paintIcon(GaugeType type) // add param: GaugeType icon
   lv_img_set_src(_curr_unit_icon,  &_gauge_unit_icons_dsc[index]);
   lv_obj_set_pos(_curr_unit_icon, GAUGE_UNIT_POSITIONS[index][0], GAUGE_UNIT_POSITIONS[index][1]);
 }
-
-void Gauge::disp_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p) 
-{
-    Gauge* self = static_cast<Gauge*>(disp->user_data); // inherit _gfx from Gauge object
-
-    uint32_t w = (area->x2 - area->x1 + 1);
-    uint32_t h = (area->y2 - area->y1 + 1);
-    self->_gfx->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t*)&color_p->full, w, h);
-    lv_disp_flush_ready(disp);
-}
-
-void Gauge::lvgl_rounder_cb(struct _lv_disp_drv_t *disp_drv, lv_area_t *area)
-{
-  if(area->x1 % 2 !=0)area->x1--;
-  if(area->y1 % 2 !=0)area->y1--;
-  
-  if(area->x2 %2 ==0)area->x2++;
-  if(area->y2 %2 ==0)area->y2++;
-}
-
-void Gauge::increase_lvgl_tick(void *arg) {
-  // Tell LVGL how many milliseconds has elapsed 
-  lv_tick_inc(LV_TIMER_PERIOD_MS);
-}
-
-
 
 // initialize array of gauge objects
 void Gauge::createGaugeImages(lv_obj_t *parent) {

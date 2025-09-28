@@ -2,11 +2,8 @@
 #define __GAUGE_H
 
 #include <lvgl.h>
-#include "pin_config.h" // GPIO pins for the screen are defined here
-#include <Arduino_GFX_Library.h>
-#include "Gauge_Icons.h" // Bitmap images for gauge icons are defined here
+#include "Arduino.h"
 
-#define LV_TIMER_PERIOD_MS 2
 #define GAUGE_NUM_INDICES 9
 
 #define OTEMP_MIN 10
@@ -179,12 +176,6 @@ class Gauge
   private:
     /* ------------------------------ PRIVATE VARIABLES ------------------------------ */
 
-    // Necessary variables for drawing to screen
-    Arduino_DataBus *_bus;
-    Arduino_GFX *_gfx;
-    lv_disp_draw_buf_t _draw_buf;
-    lv_color_t _buf[LCD_WIDTH * 10];
-
     // screen specifics
     lv_obj_t *_label; // number displayed on screen
     lv_style_t _label_style; // style for the number displayed
@@ -203,11 +194,6 @@ class Gauge
     lv_obj_t *_curr_unit_icon;
     lv_img_dsc_t _curr_unit_icon_dsc;
     lv_img_dsc_t _gauge_unit_icons_dsc[(int)GAUGE_TYPE_MAX]; // pointer to image descriptors
-
-    // LVGL drawing function callbacks
-    static void disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
-    static void lvgl_rounder_cb(struct _lv_disp_drv_t *disp_drv, lv_area_t *area);
-    static void increase_lvgl_tick(void *arg);
 
     char _gaugeState[GAUGE_NUM_INDICES]; // Gauge state - how many indices are lit
     char value_str[4]; // Gauge value - printed value, up to 3 digits
