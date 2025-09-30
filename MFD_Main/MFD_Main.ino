@@ -1,4 +1,4 @@
-SET_LOOP_TASK_STACK_SIZE(1024 * 16); 
+// SET_LOOP_TASK_STACK_SIZE(1024 * 16); 
 
 #include "Gauge.h"
 
@@ -21,8 +21,8 @@ SET_LOOP_TASK_STACK_SIZE(1024 * 16);
 // enum to go through while collecting OBD data
 typedef enum
 {
-  PID_COOLANT_TEMP,
   PID_OIL_TEMP,
+  PID_COOLANT_TEMP,
   PID_OIL_PRESS,
   PID_FUEL_PRESS,
   PID_INTAKE_PRESS,
@@ -39,6 +39,9 @@ typedef enum
 static Gauge mainGauge;
 static ELM327 main_ELM327;
 static bool buttonPressed = false;
+static GaugeData data; 
+static IPAddress server(192, 168, 0, 10);
+static WiFiClient client;
 
 /******************************************************************************
 *                              HELPER FUNCTIONS                               *
@@ -60,7 +63,7 @@ void IRAM_ATTR RegButton() {
   PID = PID_States((int)PID + 1); \
   } while(0)
 #define INCREMENT_GAUGE_TYPE(type) do { \
-  type = GaugeType( ((int)type + 1) % (int)GAUGE_TYPE_MAX); \
+  type = (GaugeType)( ((int)type + 1) % GAUGE_TYPE_MAX ); \
   } while(0)
 
 /******************************************************************************
@@ -70,16 +73,21 @@ void IRAM_ATTR RegButton() {
 void setup() {
   // SET_LOOP_TASK_STACK_SIZE(1024 * 64); 
 
-  IPAddress server(192, 168, 0, 10);
-  WiFiClient client;
+  // IPAddress server(192, 168, 0, 10);
+  // WiFiClient client;
 
   Serial.begin(115200);
   Serial.println("Starting...");
 
+  // initialize gauge library
   mainGauge.begin();
+  mainGauge.update(data);
+
+  // configure ISR for button
   pinMode(BTN_PIN, INPUT);
   attachInterrupt(digitalPinToInterrupt(BTN_PIN), RegButton, CHANGE);
 
+  // setup wifi for ELM327
   WiFi.mode(WIFI_AP);
   WiFi.begin(WIFI_SSID);
   // WiFi.begin(WIFI_SSID, WIFI_PW);
@@ -102,10 +110,8 @@ void setup() {
     Serial.println("connection failed");
     while(1);
   }
-  Serial.println("before starting ELM327");
   // false for debug msg OFF, true for debug msg ON
   main_ELM327.begin(client, false, 2000);  
-  Serial.println("after starting ELM327");
   
 
   // mainGauge.begin();
@@ -116,46 +122,15 @@ void setup() {
 *                                 MAIN DRIVER                                 *
 ******************************************************************************/
 void loop() {
-  static int i = 0;
-  Serial.printf("Execution #%d\n", i);
-  i = i + 1;
   // Gauge variables
-  static GaugeData data; static GaugeType type = GAUGE_TYPE_OIL_TEMP;
+  static GaugeType type = GAUGE_TYPE_OIL_TEMP;
   // Timer variables to track button presses
   static unsigned long buttonTimer = 0; static bool startPress = false;
   // PID to read
-  static PID_States currPID = PID_COOLANT_TEMP;
-  Serial.println("got to start of PID handler");
+  static PID_States currPID = PID_OIL_TEMP;
 
   switch (currPID){
-    case PID_COOLANT_TEMP:
-    {
-      Serial.println("got to start of PID handler - coolant temp");
-      // float coolantTemp = main_ELM327.engineCoolantTemp();
-      int coolantTemp = main_ELM327.processPID(SERVICE_01, 0x05, 1, 1, 1, 1); // PROGRAM CRASHES HERE
-      coolantTemp = coolantTemp - 40;
-      Serial.println("PID handler - coolant temp 113");
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.println("PID handler - coolant temp 136");
-        data.CoolantTemp = coolantTemp;
-
-        // Serial.print(currPID);
-        // Serial.print(" | ");
-        // Serial.print("coolant temp: ");
-        // Serial.print(coolantTemp);
-        // Serial.println(" deg C");
-        INCREMENT_PID_STATE(currPID);
-        Serial.println("PID handler - coolant temp 145");
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        main_ELM327.printError();
-        INCREMENT_PID_STATE(currPID);
-      }
-      Serial.println("PID handler - coolant temp 152");
-      break;
-    }
+    
     case PID_OIL_TEMP:
     {
       // standard PID is not broadcast
@@ -177,12 +152,7 @@ void loop() {
       if (main_ELM327.nb_rx_state == ELM_SUCCESS)
       {
         data.OilTemp = oilTemp;
-
-        // Serial.print(currPID);
-        // Serial.print(" | ");
-        // Serial.print("oil temp: ");
-        // Serial.print(oilTemp);
-        // Serial.println(" deg C");
+        // Serial.printf("%d | Oil temp: %d degC\n", currPID, oilTemp);
         INCREMENT_PID_STATE(currPID);
       }
       else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -191,6 +161,25 @@ void loop() {
         INCREMENT_PID_STATE(currPID);
       }
 
+      break;
+    }
+    case PID_COOLANT_TEMP:
+    {
+      int coolantTemp = main_ELM327.processPID(SERVICE_01, 0x05, 1, 1, 1, 1);
+      coolantTemp = coolantTemp - 40;
+
+      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
+      {
+        data.CoolantTemp = coolantTemp;
+        // Serial.printf("%d | Coolant temp: %d degC\n", currPID, coolantTemp);
+        INCREMENT_PID_STATE(currPID);
+
+      }
+      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
+      {
+        main_ELM327.printError();
+        INCREMENT_PID_STATE(currPID);
+      }
       break;
     }
     case PID_OIL_PRESS: 
@@ -211,11 +200,7 @@ void loop() {
       if (main_ELM327.nb_rx_state == ELM_SUCCESS)
       {
         data.OilPress = oilPress;
-
-        // Serial.print(currPID);
-        // Serial.print(" | ");
-        // Serial.print("oil pressure: ");
-        // Serial.println(oilPress);
+        // Serial.printf("%d | Oil pressure: %d PSI\n", currPID, oilPress);
         INCREMENT_PID_STATE(currPID);
       }
       else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -234,12 +219,7 @@ void loop() {
       if (main_ELM327.nb_rx_state == ELM_SUCCESS)
       {
         data.FuelPress = fuel_rail_press;
-
-        // Serial.print(currPID);
-        // Serial.print(" | ");
-        // Serial.print("fuel rail pressure: ");
-        // Serial.print(fuel_rail_press);
-        // Serial.println(" KPa");
+        // Serial.printf("%d | Fuel pressure: %d KPa\n", currPID, fuel_rail_press);
         INCREMENT_PID_STATE(currPID);
       }
       else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -256,12 +236,7 @@ void loop() {
       if (main_ELM327.nb_rx_state == ELM_SUCCESS)
       {
         data.MAP = MAP;
-
-        // Serial.print(currPID);
-        // Serial.print(" | ");
-        // Serial.print("manifold abs pressure: ");
-        // Serial.print(MAP);
-        // Serial.println(" kPa");
+        // Serial.printf("%d | MAP: %d KPa\n", currPID, MAP);
         INCREMENT_PID_STATE(currPID);
       }
       else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -278,14 +253,7 @@ void loop() {
       if (main_ELM327.nb_rx_state == ELM_SUCCESS)
       {
         data.BaroPress = baro_press;
-
-        // Serial.print(currPID);
-        // Serial.print(" | ");
-        // Serial.print("atmospheric pressure: ");
-        // Serial.print(baro_press);
-        // Serial.println(" kPa");
-
-        data.BaroPress = baro_press;
+        // Serial.printf("%d | Baro Pressure: %d KPa\n", currPID, baro_press);
         
         INCREMENT_PID_STATE(currPID);
       }
@@ -302,12 +270,7 @@ void loop() {
       if (main_ELM327.nb_rx_state == ELM_SUCCESS)
       {
         data.RunTime = run_time;
-
-        // Serial.print(currPID);
-        // Serial.print(" | ");
-        // Serial.print("trip time: ");
-        // Serial.print(run_time);
-        // Serial.println(" sec");
+        // Serial.printf("%d | Trip time: %d KPa\n", currPID, run_time);
         INCREMENT_PID_STATE(currPID);
       }
       else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -326,12 +289,7 @@ void loop() {
       if (main_ELM327.nb_rx_state == ELM_SUCCESS)
       {
         data.AFR = AFR;
-
-        // Serial.print(currPID);
-        // Serial.print(" | ");
-        // Serial.print("AFR:");
-        // Serial.println(AFR);
-
+        // Serial.printf("%d | AFR: %d\n", currPID, AFR);
         INCREMENT_PID_STATE(currPID);
       }
       else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -349,11 +307,7 @@ void loop() {
       if (main_ELM327.nb_rx_state == ELM_SUCCESS)
       {
         data.MAF = MAF;
-
-        // Serial.print(currPID);
-        // Serial.print(" | ");
-        // Serial.print("MAF: ");
-        // Serial.println(MAF);
+        // Serial.printf("%d | MAF: %d g/s\n", currPID, MAF);
         INCREMENT_PID_STATE(currPID);
       }
       else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
@@ -373,26 +327,27 @@ void loop() {
       ----------- * ----------- * ----------- * ---------------
       1 s           (AFR) g air   820 g fuel    1 dm^3 fuel
       */
-      float inst_fuel_rate = (data.MAF * 0.264172) / (data.AFR * 820);
+      // float inst_fuel_rate = (data.MAF * 0.264172) / (data.AFR * 820);
       /*
       calculation for turbocharger boost pressure:
       MAP - baro pressure
       */
-      float boost_press = data.MAP - data.BaroPress;
+      // float boost_press = data.MAP - data.BaroPress;
+      float boost_press = 0;
       data.BoostPress = boost_press;
 
       // update all gauge data, gauge library handles repainting internally 
       mainGauge.update(data);
 
-      Serial.print("Inst fuel rate: ");
-      Serial.print(inst_fuel_rate);
-      Serial.print(" gal/s");
-      Serial.println();
-      Serial.print("Boost pressure: ");
-      Serial.print(boost_press);
-      Serial.print(" KPa");
-      Serial.println();
-      Serial.println("last PID, resetting");
+      // Serial.print("Inst fuel rate: ");
+      // Serial.print(inst_fuel_rate);
+      // Serial.print(" gal/s");
+      // Serial.println();
+      // Serial.print("Boost pressure: ");
+      // Serial.print(boost_press);
+      // Serial.print(" KPa");
+      // Serial.println();
+      // Serial.println("last PID, resetting");
       currPID = PID_States(0);
       break;
     }
@@ -401,10 +356,12 @@ void loop() {
 
   // begin counting how long the button has been pressed once the ISR catches 
   // a button press event
+  // Serial.printf("buttonPressed = %d, startPress = %d\n", 
+  //   buttonPressed, startPress);
   if (buttonPressed && !startPress){
     buttonTimer = millis();
     startPress = true;
-    // Serial.println("Button pressed");
+    Serial.println("Button pressed");
   }
   // stop timing how long the button press took after the ISR catches
   // a button de-press event
@@ -412,9 +369,7 @@ void loop() {
     // won't account for o'flow which happens after 50 days of continuous use
     unsigned long buttonInterval = millis() - buttonTimer; 
     startPress = false;
-    // Serial.print("Button pressed for ");
-    // Serial.print(buttonInterval);
-    // Serial.println(" ms");
+    Serial.printf("Button pressed for %li ms\n", buttonInterval);
 
     // Short press: Switch gauges
     if (buttonInterval > BTN_1_ACTION && buttonInterval < BTN_2_ACTION){
@@ -430,5 +385,6 @@ void loop() {
     }
     
   }
+  // delay(10);
 
 }
