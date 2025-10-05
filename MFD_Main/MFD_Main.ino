@@ -9,8 +9,16 @@
 *                                   DEFINES                                   *
 ******************************************************************************/
 #define BTN_PIN 18
+#define BRIGHTNESS_SENSOR_PIN 17
+
 #define BTN_1_ACTION 1   // how many ms to press button to switch gauges
 #define BTN_2_ACTION 500 // how many ms to press button for secondary action (action is TBD)
+
+#define BRIGHTNESS_LO 155 // screen brightness setting
+#define BRIGHTNESS_HI 255
+#define BRIGHTNESS_LO_BOUND 1000 // ambient light sensor value
+#define BRIGHTNESS_HYST 200 // hysteresis value for light sensor
+#define BRIGHTNESS_INTVL (1 * 1000) // when to check ambient light level (ms)
 
 #define WIFI_SSID "WiFi_OBDII"
 #define WIFI_PW ""
@@ -56,12 +64,33 @@ void IRAM_ATTR RegButton() {
   }
 }
 
+// Calculate brightness level based on ambient light sensor input
+uint8_t CalculateBrightness() {
+  static uint8_t brightness_setting = BRIGHTNESS_HI;
+  
+  int brightness = analogRead(BRIGHTNESS_SENSOR_PIN);
+  // Serial.println(brightness);
+
+  // implement hysteresis lower bound (transition from high to low brightness)
+  if (brightness_setting == BRIGHTNESS_HI && 
+      brightness < BRIGHTNESS_LO_BOUND - BRIGHTNESS_HYST){
+    brightness_setting = BRIGHTNESS_LO;
+  }
+  // implement hysteresis upper bound (transition from low to high brightness)
+  else if (brightness_setting == BRIGHTNESS_LO && 
+      brightness > BRIGHTNESS_LO_BOUND + BRIGHTNESS_HYST){
+    brightness_setting = BRIGHTNESS_HI;
+  }
+  return brightness_setting;
+}
+
 /******************************************************************************
 *                                    MACROS                                   *
 ******************************************************************************/
 #define INCREMENT_PID_STATE(PID) do { \
   PID = PID_States((int)PID + 1); \
   } while(0)
+
 #define INCREMENT_GAUGE_TYPE(type) do { \
   type = (GaugeType)( ((int)type + 1) % GAUGE_TYPE_MAX ); \
   } while(0)
@@ -126,6 +155,8 @@ void loop() {
   static GaugeType type = GAUGE_TYPE_OIL_TEMP;
   // Timer variables to track button presses
   static unsigned long buttonTimer = 0; static bool startPress = false;
+  // Timer for when to check the ambient light level/set brightness
+  static unsigned long brightnessTimer = 0;
   // PID to read
   static PID_States currPID = PID_OIL_TEMP;
 
@@ -385,6 +416,14 @@ void loop() {
     }
     
   }
-  // delay(10);
+  
+  // check ambient light level and update screen brightness
+  // performed at BRIGHTNESS_INTVL milliseconds
+  unsigned long lightInterval = millis() - brightnessTimer; 
+  if (lightInterval > BRIGHTNESS_INTVL){
+    int brightness = CalculateBrightness();
+    mainGauge.setBrightness(brightness);
+    brightnessTimer = millis(); // reset timer
+  }
 
 }
