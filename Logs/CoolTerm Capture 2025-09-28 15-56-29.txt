@@ -1,0 +1,1098 @@
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID handler - coolant tempGuru Meditation Error: Core  / panic'ed (Cache error). 
+MMU entry fault error
+
+Guru Meditation Error: Core  0 panic'ed (Unhandled debug exception). 
+Debug exception reason: Stack canary watchpoint triggered (IDLE0) 
+Core  0 register dump:
+PC      : 0x40056f60  PS      : 0x00060536  A0      : 0x820376dd  A1      : 0x3fcb8270  
+A2      : 0x3fcb8290  A3      : 0x3c10e7cc  A4      : 0x00000060  A5      : 0x3fcb8290  
+A6      : 0x3c0f341f  A7      : 0x3c0f3428  A8      : 0x00000000  A9      : 0x00000001  
+A10     : 0x60000000  A11     : 0x0000000a  A12     : 0x8203701a  A13     : 0x40376588  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x0000000c  EXCCAUSE: 0x00000001  
+EXCVADDR: 0x00000000  LBEG    : 0x40056f5c  LEND    : 0x40056f72  LCOUNT  : 0x00000005  
+
+
+Backtrace: 0x40056f5d:0x3fcb8270 0x420376da:0x3fcb8280 0x42037509:0x3fcb8310 0x42037535:0x3fcb8330 0x420369e7:0x3fcb8350 0x42031840:0x3fcb8380 0x420374c9:0x3fcb83a0 0x4037631d:0x3fcb83f0 0x403765c4:0x3fcb8410 0x00040022:0x3fcb84d0 |<-CORRUPTED
+
+
+Core  1 register dump:
+PC      : 0x40374340  PS      : 0x00060e34  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x00000000  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0x000000f7  
+A10     : 0x3fcebf20  A11     : 0x00000000  A12     : 0x3fcec500  A13     : 0x00000000  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x00000008  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4037433d:0x3fcebe90 0x420292eb:0x3fcebeb0 0x42029346:0x3fcebed0 0x42029a61:0x3fcebef0 0x42002b88:0x3fcebf20 0x42033048:0x3fcebfb0 0x4037f739:0x3fcebfd0
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40376815
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID handler - coolant temp
+Guru Meditation Error: Core  1 panic'ed (InstructionFetchError). Exception was unhandled.
+
+Core  1 register dump:
+PC      : 0x3fc9db18  PS      : 0x00060c30  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x00060023  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0x000000f7  
+A10     : 0x3fcebf20  A11     : 0x0000abab  A12     : 0x03cec6f4  A13     : 0x3fcec6f4  
+A14     : 0x01ffffff  A15     : 0x00000001  SAR     : 0x00000008  EXCCAUSE: 0x00000002  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x3fc9db15:0x3fcebe90 |<-CORRUPTED
+
+
+Core  0 register dump:
+PC      : 0x00000000  PS      : 0x00060434  A0      : 0x8203701a  A1      : 0x3fcb8490  
+A2      : 0x3fcb86e8  A3      : 0x00000000  A4      : 0x8037f9d6  A5      : 0x3fcb83d0  
+A6      : 0x00060023  A7      : 0x3fcb84af  A8      : 0x82036fbe  A9      : 0x3fcb8470  
+A10     : 0x3fc9867c  A11     : 0xffffffff  A12     : 0x8037f9d6  A13     : 0x3fcb6360  
+A14     : 0x00060023  A15     : 0x00000003  SAR     : 0x0000001c  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x00000000  LBEG    : 0x00000000  LEND    : 0x00000000  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0xfffffffd:0x3fcb8490 |<-CORRUPTED
+
+
+
+
+ELF file Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+Guru Meditation Error: Core  / panic'ed (Cache error). 
+MMU entry fault error
+
+Guru Meditation Error: Core  0 panic'ed (Unhandled debug exception). 
+Debug exception reason: Stack canary watchpoint triggered (IDLE0) 
+Core  0 register dump:
+PC      : 0x40056f60  PS      : 0x00060536  A0      : 0x820376dd  A1      : 0x3fcb8270  
+A2      : 0x3fcb8290  A3      : 0x3c10e7cc  A4      : 0x00000060  A5      : 0x3fcb8290  
+A6      : 0x3c0f341f  A7      : 0x3c0f3428  A8      : 0x00000000  A9      : 0x00000001  
+A10     : 0x60000000  A11     : 0x0000000a  A12     : 0x8203701a  A13     : 0x40376588  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x0000000c  EXCCAUSE: 0x00000001  
+EXCVADDR: 0x00000000  LBEG    : 0x40056f5c  LEND    : 0x40056f72  LCOUNT  : 0x00000005  
+
+
+Backtrace: 0x40056f5d:0x3fcb8270 0x420376da:0x3fcb8280 0x42037509:0x3fcb8310 0x42037535:0x3fcb8330 0x420369e7:0x3fcb8350 0x42031840:0x3fcb8380 0x420374c9:0x3fcb83a0 0x4037631d:0x3fcb83f0 0x403765c4:0x3fcb8410 0x00040022:0x3fcb84d0 |<-CORRUPTED
+
+
+Core  1 register dump:
+PC      : 0x40374340  PS      : 0x00060e34  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x00000000  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0x000000f7  
+A10     : 0x3fcebf20  A11     : 0x00000000  A12     : 0x3fcec500  A13     : 0x00000000  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x00000008  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4037433d:0x3fcebe90 0x420292eb:0x3fcebeb0 0x42029346:0x3fcebed0 0x42029a61:0x3fcebef0 0x42002b88:0x3fcebf20 0x42033048:0x3fcebfb0 0x4037f739:0x3fcebfd0
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40376815
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID handler - coolant temp
+Guru Meditation Error: Core  / panic'ed (Cache error). 
+MMU entry fault error
+
+Guru Meditation Error: Core  0 panic'ed (Unhandled debug exception). 
+Debug exception reason: Stack canary watchpoint triggered (IDLE0) 
+Core  0 register dump:
+PC      : 0x40056f60  PS      : 0x00060536  A0      : 0x820376dd  A1      : 0x3fcb8270  
+A2      : 0x3fcb8290  A3      : 0x3c10e7cc  A4      : 0x00000060  A5      : 0x3fcb8290  
+A6      : 0x3c0f341f  A7      : 0x3c0f3428  A8      : 0x00000000  A9      : 0x00000001  
+A10     : 0x60000000  A11     : 0x0000000a  A12     : 0x8203701a  A13     : 0x40376588  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x0000000c  EXCCAUSE: 0x00000001  
+EXCVADDR: 0x00000000  LBEG    : 0x40056f5c  LEND    : 0x40056f72  LCOUNT  : 0x00000005  
+
+
+Backtrace: 0x40056f5d:0x3fcb8270 0x420376da:0x3fcb8280 0x42037509:0x3fcb8310 0x42037535:0x3fcb8330 0x420369e7:0x3fcb8350 0x42031840:0x3fcb8380 0x420374c9:0x3fcb83a0 0x4037631d:0x3fcb83f0 0x403765c4:0x3fcb8410 0x00040022:0x3fcb84d0 |<-CORRUPTED
+
+
+Core  1 register dump:
+PC      : 0x40374340  PS      : 0x00060e34  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x01ffffff  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0x000000f7  
+A10     : 0x3fcebf20  A11     : 0x00000000  A12     : 0x03cec6f4  A13     : 0x3fcec6f4  
+A14     : 0x01ffffff  A15     : 0x00000000  SAR     : 0x00000008  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4037433d:0x3fcebe90 0x420292eb:0x3fcebeb0 0x42029346:0x3fcebed0 0x42029a61:0x3fcebef0 0x42002b88:0x3fcebf20 0x42033048:0x3fcebfb0 0x4037f739:0x3fcebfd0
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40376815
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID handler - coolaGuru Meditation Error: Core  / panic'ed (Cache error). 
+MMU entry fault error
+
+Guru Meditation Error: Core  0 panic'ed (Double exception). 
+
+Core  0 register dump:
+PC      : 0x40388222  PS      : 0x00040b36  A0      : 0x820374cc  A1      : 0x3fcb81d0  
+A2      : 0x00040b36  A3      : 0x00040026  A4      : 0x00000000  A5      : 0x3fcad624  
+A6      : 0x3c0f37bd  A7      : 0x3fcb82ec  A8      : 0x3fcb8290  A9      : 0x3fcb81d0  
+A10     : 0x3fcb8350  A11     : 0x00000000  A12     : 0x00000000  A13     : 0x3fcad61c  
+A14     : 0x3fcad65c  A15     : 0x3fc98674  SAR     : 0x0000000c  EXCCAUSE: 0x00000002  
+EXCVADDR: 0x3fcb81d0  LBEG    : 0x40056f5c  LEND    : 0x40056f72  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4038821f:0x3fcb81d0 0x420374c9:0x3fcb8290 0x420374c9:0x3fcb82c0 0x4037407d:0x3fcb8150 0x420366aa:0x3fcb8350 0x3fcb81cd:0x3fcb8410 |<-CORRUPTED
+
+
+Core  1 register dump:
+PC      : 0x40374340  PS      : 0x00060e34  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x00000000  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0x000000f7  
+A10     : 0x3fcebf20  A11     : 0x00000000  A12     : 0x3fcec500  A13     : 0x00000000  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x00000008  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4037433d:0x3fcebe90 0x420292eb:0x3fcebeb0 0x42029346:0x3fcebed0 0x42029a61:0x3fcebef0 0x42002b88:0x3fcebf20 0x42033048:0x3fcebfb0 0x4037f739:0x3fcebfd0
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40376815
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID handler - coolant temp
+Guru Meditation Error: Core  1 panic'ed (InstructionFetchError). Exception was unhandled.
+
+Core  1 register dump:
+PC      : 0x3fc9db18  PS      : 0x00060230  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x00000000  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0x000000f7  
+A10     : 0x3fcebf20  A11     : 0x3fcec6f4  A12     : 0x3fcac954  A13     : 0x60038000  
+A14     : 0x00000000  A15     : 0x3fcec748  SAR     : 0x00000008  EXCCAUSE: 0x00000002  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x3fc9db15:0x3fcebe90 |<-CORRUPTED
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x420daa92
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID handler - coolant temp
+Guru Meditation Error: Core  / panic'ed (Cache error). 
+MMU entry fault error
+
+Guru Meditation Error: Core  0 panic'ed (Unhandled debug exception). 
+Debug exception reason: Stack canary watchpoint triggered (IDLE0) 
+Core  0 register dump:
+PC      : 0x40056f60  PS      : 0x00060536  A0      : 0x820376dd  A1      : 0x3fcb8270  
+A2      : 0x3fcb8290  A3      : 0x3c10e7cc  A4      : 0x00000060  A5      : 0x3fcb8290  
+A6      : 0x3c0f341f  A7      : 0x3c0f3428  A8      : 0x00000000  A9      : 0x00000001  
+A10     : 0x60000000  A11     : 0x0000000a  A12     : 0x8203701a  A13     : 0x40376588  
+A14     : 0x00000000  A15     : 0x00330f38  SAR     : 0x0000000c  EXCCAUSE: 0x00000001  
+EXCVADDR: 0x00000000  LBEG    : 0x40056f5c  LEND    : 0x40056f72  LCOUNT  : 0x00000005  
+
+
+Backtrace: 0x40056f5d:0x3fcb8270 0x420376da:0x3fcb8280 0x42037509:0x3fcb8310 0x42037535:0x3fcb8330 0x420369e7:0x3fcb8350 0x42031840:0x3fcb8380 0x420374c9:0x3fcb83a0 0x4037631d:0x3fcb83f0 0x403765c4:0x3fcb8410 0x00040022:0x3fcb84d0 |<-CORRUPTED
+
+
+Core  1 register dump:
+PC      : 0x40374340  PS      : 0x00060234  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x00000000  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0x000000f7  
+A10     : 0x3fcebf20  A11     : 0x3fcec6f4  A12     : 0x3fcac954  A13     : 0x60038000  
+A14     : 0x00000000  A15     : 0x3fcec746  SAR     : 0x00000008  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4037433d:0x3fcebe90 0x420292eb:0x3fcebeb0 0x42029346:0x3fcebed0 0x42029a61:0x3fcebef0 0x42002b88:0x3fcebf20 0x42033048:0x3fcebfb0 0x4037f739:0x3fcebfd0
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40376815
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID handler - coolant tempGuru Meditation Error: Core  / panic'ed (Cache error). 
+MMU entry fault error
+
+Guru Meditation Error: Core  0 panic'ed (Unhandled debug exception). 
+Debug exception reason: Stack canary watchpoint triggered (IDLE0) 
+Core  0 register dump:
+PC      : 0x40056f60  PS      : 0x00060536  A0      : 0x820376dd  A1      : 0x3fcb8270  
+A2      : 0x3fcb8290  A3      : 0x3c10e7cc  A4      : 0x00000060  A5      : 0x3fcb8290  
+A6      : 0x3c0f341f  A7      : 0x3c0f3428  A8      : 0x00000000  A9      : 0x00000001  
+A10     : 0x60000000  A11     : 0x0000000a  A12     : 0x8203701a  A13     : 0x40376588  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x0000000c  EXCCAUSE: 0x00000001  
+EXCVADDR: 0x00000000  LBEG    : 0x40056f5c  LEND    : 0x40056f72  LCOUNT  : 0x00000005  
+
+
+Backtrace: 0x40056f5d:0x3fcb8270 0x420376da:0x3fcb8280 0x42037509:0x3fcb8310 0x42037535:0x3fcb8330 0x420369e7:0x3fcb8350 0x42031840:0x3fcb8380 0x420374c9:0x3fcb83a0 0x4037631d:0x3fcb83f0 0x403765c4:0x3fcb8410 0x00040022:0x3fcb84d0 |<-CORRUPTED
+
+
+Core  1 register dump:
+PC      : 0x40374340  PS      : 0x00060e34  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x00000000  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0x000000f7  
+A10     : 0x3fcebf20  A11     : 0x00000000  A12     : 0x3fcec500  A13     : 0x00000000  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x00000008  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4037433d:0x3fcebe90 0x420292eb:0x3fcebeb0 0x42029346:0x3fcebed0 0x42029a61:0x3fcebef0 0x42002b88:0x3fcebf20 0x42033048:0x3fcebfb0 0x4037f739:0x3fcebfd0
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40376815
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID handler - coolant temp
+Guru Meditation Error: Core  / panic'ed (Cache error). 
+MMU entry fault error
+
+Guru Meditation Error: Core  0 panic'ed (Unhandled debug exception). 
+Debug exception reason: Stack canary watchpoint triggered (IDLE0) 
+Core  0 register dump:
+PC      : 0x40056f60  PS      : 0x00060536  A0      : 0x820376dd  A1      : 0x3fcb8270  
+A2      : 0x3fcb8290  A3      : 0x3c10e7cc  A4      : 0x00000060  A5      : 0x3fcb8290  
+A6      : 0x3c0f341f  A7      : 0x3c0f3428  A8      : 0x00000000  A9      : 0x00000001  
+A10     : 0x60000000  A11     : 0x0000000a  A12     : 0x8203701a  A13     : 0x40376588  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x0000000c  EXCCAUSE: 0x00000001  
+EXCVADDR: 0x00000000  LBEG    : 0x40056f5c  LEND    : 0x40056f72  LCOUNT  : 0x00000005  
+
+
+Backtrace: 0x40056f5d:0x3fcb8270 0x420376da:0x3fcb8280 0x42037509:0x3fcb8310 0x42037535:0x3fcb8330 0x420369e7:0x3fcb8350 0x42031840:0x3fcb8380 0x420374c9:0x3fcb83a0 0x4037631d:0x3fcb83f0 0x403765c4:0x3fcb8410 0x00040022:0x3fcb84d0 |<-CORRUPTED
+
+
+Core  1 register dump:
+PC      : 0x40374340  PS      : 0x00060e34  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31d8  
+A6      : 0x00000000  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0xfffffff7  
+A10     : 0x3fcebf20  A11     : 0x3fcec6f4  A12     : 0x3fcac954  A13     : 0x60038000  
+A14     : 0x00000000  A15     : 0x3fcec772  SAR     : 0x00000008  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4037433d:0x3fcebe90 0x420292eb:0x3fcebeb0 0x42029346:0x3fcebed0 0x42029a61:0x3fcebef0 0x42002b88:0x3fcebf20 0x42033048:0x3fcebfb0 0x4037f739:0x3fcebfd0
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40376815
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID handler - coolant temp
+Guru Meditation Error: Core  / panic'ed (Cache error). 
+MMU entry fault error
+
+Guru Meditation Error: Core  0 panic'ed (Unhandled debug exception). 
+Debug exception reason: Stack canary watchpoint triggered (IDLE0) 
+Core  0 register dump:
+PC      : 0x40056f60  PS      : 0x00060536  A0      : 0x820376dd  A1      : 0x3fcb8270  
+A2      : 0x3fcb8290  A3      : 0x3c10e7cc  A4      : 0x00000060  A5      : 0x3fcb8290  
+A6      : 0x3c0f341f  A7      : 0x3c0f3428  A8      : 0x00000000  A9      : 0x00000001  
+A10     : 0x60000000  A11     : 0x0000000a  A12     : 0x8203701a  A13     : 0x40376588  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x0000000c  EXCCAUSE: 0x00000001  
+EXCVADDR: 0x00000000  LBEG    : 0x40056f5c  LEND    : 0x40056f72  LCOUNT  : 0x00000005  
+
+
+Backtrace: 0x40056f5d:0x3fcb8270 0x420376da:0x3fcb8280 0x42037509:0x3fcb8310 0x42037535:0x3fcb8330 0x420369e7:0x3fcb8350 0x42031840:0x3fcb8380 0x420374c9:0x3fcb83a0 0x4037631d:0x3fcb83f0 0x403765c4:0x3fcb8410 0x00040022:0x3fcb84d0 |<-CORRUPTED
+
+
+Core  1 register dump:
+PC      : 0x40374340  PS      : 0x00060e34  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x00000000  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0xfffffff7  
+A10     : 0x3fcebf20  A11     : 0x3fcec6f4  A12     : 0x3fcac954  A13     : 0x60038000  
+A14     : 0x00000000  A15     : 0x3fcec772  SAR     : 0x00000008  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4037433d:0x3fcebe90 0x420292eb:0x3fcebeb0 0x42029346:0x3fcebed0 0x42029a61:0x3fcebef0 0x42002b88:0x3fcebf20 0x42033048:0x3fcebfb0 0x4037f739:0x3fcebfd0
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40376815
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID handler - coolant temp
+Guru Meditation Error: Core  / panic'ed (Cache error). 
+MMU entry fault error
+
+Guru Meditation Error: Core  0 panic'ed (Unhandled debug exception). 
+Debug exception reason: Stack canary watchpoint triggered (IDLE0) 
+Core  0 register dump:
+PC      : 0x40056f60  PS      : 0x00060536  A0      : 0x820376dd  A1      : 0x3fcb8270  
+A2      : 0x3fcb8290  A3      : 0x3c10e7cc  A4      : 0x00000060  A5      : 0x3fcb8290  
+A6      : 0x3c0f341f  A7      : 0x3c0f3428  A8      : 0x00000000  A9      : 0x00000001  
+A10     : 0x60000000  A11     : 0x0000000a  A12     : 0x8203701a  A13     : 0x40376588  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x0000000c  EXCCAUSE: 0x00000001  
+EXCVADDR: 0x00000000  LBEG    : 0x40056f5c  LEND    : 0x40056f72  LCOUNT  : 0x00000005  
+
+
+Backtrace: 0x40056f5d:0x3fcb8270 0x420376da:0x3fcb8280 0x42037509:0x3fcb8310 0x42037535:0x3fcb8330 0x420369e7:0x3fcb8350 0x42031840:0x3fcb8380 0x420374c9:0x3fcb83a0 0x4037631d:0x3fcb83f0 0x403765c4:0x3fcb8410 0x00040022:0x3fcb84d0 |<-CORRUPTED
+
+
+Core  1 register dump:
+PC      : 0x40374340  PS      : 0x00060234  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x00000000  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0x000000f7  
+A10     : 0x3fcebf20  A11     : 0x3fcec6f4  A12     : 0x3fcac954  A13     : 0x60038000  
+A14     : 0x00000000  A15     : 0x3fcec748  SAR     : 0x00000008  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4037433d:0x3fcebe90 0x420292eb:0x3fcebeb0 0x42029346:0x3fcebed0 0x42029a61:0x3fcebef0 0x42002b88:0x3fcebf20 0x42033048:0x3fcebfb0 0x4037f739:0x3fcebfd0
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40376815
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID haGuru Meditation Error: Core  / panic'ed (Cache error). 
+MMU entry fault error
+
+Guru Meditation Error: Core  0 panic'ed (Unhandled debug exception). 
+Debug exception reason: Stack canary watchpoint triggered (IDLE0) 
+Core  0 register dump:
+PC      : 0x40056f60  PS      : 0x00060536  A0      : 0x820376dd  A1      : 0x3fcb8270  
+A2      : 0x3fcb8290  A3      : 0x3c10e7cc  A4      : 0x00000060  A5      : 0x3fcb8290  
+A6      : 0x3c0f341f  A7      : 0x3c0f3428  A8      : 0x00000000  A9      : 0x00000001  
+A10     : 0x60000000  A11     : 0x0000000a  A12     : 0x8203701a  A13     : 0x40376588  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x0000000c  EXCCAUSE: 0x00000001  
+EXCVADDR: 0x00000000  LBEG    : 0x40056f5c  LEND    : 0x40056f72  LCOUNT  : 0x00000005  
+
+
+Backtrace: 0x40056f5d:0x3fcb8270 0x420376da:0x3fcb8280 0x42037509:0x3fcb8310 0x42037535:0x3fcb8330 0x420369e7:0x3fcb8350 0x42031840:0x3fcb8380 0x420374c9:0x3fcb83a0 0x4037631d:0x3fcb83f0 0x403765c4:0x3fcb8410 0x00040022:0x3fcb84d0 |<-CORRUPTED
+
+
+Core  1 register dump:
+PC      : 0x40374340  PS      : 0x00060e34  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x00000000  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0x000000f7  
+A10     : 0x3fcebf20  A11     : 0x00000000  A12     : 0x3fcec500  A13     : 0x00000000  
+A14     : 0x00000000  A15     : 0x00000000  SAR     : 0x00000008  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4037433d:0x3fcebe90 0x420292eb:0x3fcebeb0 0x42029346:0x3fcebed0 0x42029a61:0x3fcebef0 0x42002b88:0x3fcebf20 0x42033048:0x3fcebfb0 0x4037f739:0x3fcebfd0
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40376815
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+....
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
+after starting ELM327
+Execution #0
+got to start of PID handler
+got to start of PID handler - coolant temp
+Guru Meditation Error: Core  0 panic'ed (Unhandled debug exception). 
+Debug exception reason: Stack canary watchpoint triggered (IDLE0) 
+Core  0 register dump:
+PC      : 0x400570ea  PS      : 0x00060036  A0      : 0x820373d4  A1      : 0x3fcb8250  
+A2      : 0x3fcb826c  A3      : 0x00000000  A4      : 0x00000024  A5      : 0x3fcb827c  
+A6      : 0x01ffffff  A7      : 0x00000002  A8      : 0x00000001  A9      : 0x3fc9a7f8  
+A10     : 0x600c40fc  A11     : 0x00000002  A12     : 0x00000001  A13     : 0x3fcada04  
+A14     : 0x3fcb86ec  A15     : 0x3fcb80f0  SAR     : 0x0000001c  EXCCAUSE: 0x00000001  
+EXCVADDR: 0x00000000  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x400570e7:0x3fcb8250 0x420373d1:0x3fcb8260 0x4037631d:0x3fcb82b0 0x403765c4:0x3fcb82d0 0x00040022:0x3fcb8390 |<-CORRUPTED
+
+
+Core  1 register dump:
+PC      : 0x40374340  PS      : 0x00060c34  A0      : 0x820292ee  A1      : 0x3fcebe90  
+A2      : 0x3fc9db30  A3      : 0x00000000  A4      : 0x00000029  A5      : 0x3fcc31dc  
+A6      : 0x00000000  A7      : 0x00000002  A8      : 0x820292ba  A9      : 0x000000f7  
+A10     : 0x3fcebf20  A11     : 0x3fc9b8e4  A12     : 0x8037f9d6  A13     : 0x3fc9b890  
+A14     : 0x00060023  A15     : 0x00000001  SAR     : 0x00000008  EXCCAUSE: 0x00000007  
+EXCVADDR: 0x3fc9db18  LBEG    : 0x400570e8  LEND    : 0x400570f3  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x4037433d:0x3fcebe90 0x420292eb:0x3fcebeb0 0x42029346:0x3fcebed0 0x42029a61:0x3fcebef0 0x42002b88:0x3fcebf20 0x42033048:0x3fcebfb0 0x4037f739:0x3fcebfd0
+
+
+
+
+ELF file SHA256: 177155aa6
+
+Rebooting...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x2b (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40376815
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1180
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x311c
+entry 0x403c88b8
+Starting...
+SD_MMC Card Type: SDSC
+SD_MMC Card Size: 1946MB
+SD_MMC initialized
+/images/main_gauge/index/ind8_off.bin
+/images/main_gauge/index/ind8_on.bin
+/images/main_gauge/index/ind9_off.bin
+/images/main_gauge/index/ind9_on.bin
+/images/main_gauge/index/ind10_off.bin
+/images/main_gauge/index/ind10_on.bin
+/images/main_gauge/index/ind11_off.bin
+/images/main_gauge/index/ind11_on.bin
+/images/main_gauge/index/ind12_off.bin
+/images/main_gauge/index/ind12_on.bin
+/images/main_gauge/index/ind1_off.bin
+/images/main_gauge/index/ind1_on.bin
+/images/main_gauge/index/ind2_off.bin
+/images/main_gauge/index/ind2_on.bin
+/images/main_gauge/index/ind3_off.bin
+/images/main_gauge/index/ind3_on.bin
+/images/main_gauge/index/ind4_off.bin
+/images/main_gauge/index/ind4_on.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/coolant_icon.bin
+/images/main_gauge/icon/oil_icon.bin
+/images/main_gauge/icon/fuel_icon.bin
+/images/main_gauge/icon/turbo_icon.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/degC_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+/images/main_gauge/unit/PSI_unit.bin
+Font loaded OK.
+...
+Connected to Wifi
+IP address: 
+192.168.0.11
+connected
+before starting ELM327
