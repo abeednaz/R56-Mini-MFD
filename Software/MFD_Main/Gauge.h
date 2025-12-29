@@ -154,26 +154,25 @@ typedef struct
 {
   // Main Gauge values
   // initalize them to 1 to avoid any div/0 errors
-  int CoolantTemp = 0;
-  int OilTemp = 0;
-  int OilPress = 0;
-  int BoostPress = 0;
-  int BaroPress = 1;
-  int MAF = 1;
-  int MAP = 1;
-  float AFR = 14.7;
-  int RunTime = 0;
-  int FuelPress = 0;
+  int OilTemp_C = 0;
+  int CoolantTemp_C = 0;
+  double BaroPress_PSI = 14.7;
+  double BoostPress_PSI = 0;
+  double OilPress_PSI = 0;
+  double FuelPress_PSI = 0;
+  double MAP_PSI = 1;
+  int MAF_kgPhr = 1;
+  double AFR = 14.7;
 
   // Trip Insights statistics
   int DriveCycleTime_sec = 0;
-  float DriveCycleDist_mi = 0;
-  float DriveCycleFuelUsage = 0;
+  double DriveCycleDist_mi = 0;
+  double DriveCycleFuelUsage = 0;
 
   // IMU values (not yet implemented)
-  float X_accel = 0; 
-  float Y_accel = 0; 
-  float Z_accel = 0;
+  double X_accel = 0; 
+  double Y_accel = 0; 
+  double Z_accel = 0;
 } GaugeData;
 
 class Gauge
@@ -196,7 +195,7 @@ class Gauge
     lv_obj_t *_main_screen; // active screen -- need to have multiple for different gauge types
 
     // array to refer to image objects
-    lv_obj_t *_gauge_index_icons[GAUGE_NUM_INDICES]; // pointer to image bitmaps for gauge indices
+    lv_obj_t *_gauge_index_icons[GAUGE_NUM_INDICES]; // pointer to image bitMAP_PSIs for gauge indices
     lv_img_dsc_t _gauge_index_icons_dsc[GAUGE_NUM_INDICES][2]; // pointer to image descriptors
 
     // variables for referring to the sensor icon images

@@ -518,27 +518,27 @@ int Gauge::update(GaugeData data)
   // choose the value to print
   switch(_gaugeType){
     case GAUGE_TYPE_OIL_TEMP:
-      valueToUpdate = _data.OilTemp;
+      valueToUpdate = _data.OilTemp_C;
       break; 
     case GAUGE_TYPE_COOLANT_TEMP:
-      valueToUpdate = _data.CoolantTemp;
+      valueToUpdate = _data.CoolantTemp_C;
       break; 
     case GAUGE_TYPE_OIL_PRESS:
-      valueToUpdate = _data.OilPress;
+      valueToUpdate = _data.OilPress_PSI;
       break; 
     case GAUGE_TYPE_FUEL_PRESS:
-      valueToUpdate = _data.FuelPress;
+      valueToUpdate = _data.FuelPress_PSI;
       break; 
     case GAUGE_TYPE_BOOST_PRESS:
-      valueToUpdate = _data.BoostPress;
+      valueToUpdate = _data.BoostPress_PSI;
       break; 
     case GAUGE_TYPE_MAX:
       break;
   }
   
   // update the gauge and indices with the current value
-  paintGauge(valueToUpdate);
-  paintValue(valueToUpdate);
+  paintGauge((int)valueToUpdate);
+  paintValue((int)valueToUpdate);
   // allow LVGL to continue updating the screen
   lv_timer_handler();
   return 0;
