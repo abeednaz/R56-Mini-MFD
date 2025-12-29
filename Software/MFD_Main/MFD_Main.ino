@@ -23,6 +23,10 @@
 #define WIFI_SSID "WiFi_OBDII"
 #define WIFI_PW ""
 
+#define HPA_TO_PSI 0.0145038
+#define MPA_TO_PSI 145.037738
+#define L_TO_GAL 0.264172
+
 /******************************************************************************
 *                                  TYPEDEFS                                   *
 ******************************************************************************/
@@ -31,15 +35,32 @@ typedef enum
 {
   PID_OIL_TEMP,
   PID_COOLANT_TEMP,
+  PID_BARO_PRESS,
+  PID_BOOST_PRESS,
   PID_OIL_PRESS,
   PID_FUEL_PRESS,
   PID_INTAKE_PRESS,
-  PID_BARO_PRESS,
   PID_TRIP_TIME,
+  PID_VEHICLE_SPEED,
+  PID_FUEL_CONS,
   PID_AIR_FUEL_RATIO,
   PID_MASS_AIRFLOW,
   PID_MAX_STATE,
 } PID_States;
+
+using PidHandlerFn = void (*)(int value);
+struct PidRequest
+{
+    uint8_t pidIndex;        // index into your PID array
+    PidHandlerFn onSuccess;  // how to store/process it
+};
+constexpr PidRequest pidTable[] =
+{
+    { PID_OIL_TEMP,      handleOilTemp     },
+    { PID_COOLANT_TEMP,  handleCoolantTemp },
+    { PID_BOOST,         handleBoost       },
+};
+
 
 /******************************************************************************
 *                            MODULE-LEVEL VARIABLES                           *
@@ -50,6 +71,44 @@ static bool buttonPressed = false;
 static GaugeData data; 
 static IPAddress server(192, 168, 0, 10);
 static WiFiClient client;
+
+// Array with parameters to processPID()
+// source for service 0x01 PIDs: https://en.wikipedia.org/wiki/OBD-II_PIDs#Standard_PIDs
+// source for service 0x22 PIDs: https://thesecretingredient.neocities.org/bmw/dme/n55/
+static int PIDsArray [(int)PID_MAX_STATE][4] = {
+  // {Service ID, Parameter ID, num responses, num bytes of response}
+  {0x22, 0x5822, 1, 1}, // Oil temperature
+  {0x01, 0x0005, 1, 1}, // Coolant temperature
+  {0x22, 0x5834, 1, 2}, // Baro/ambient pressure
+  {0x22, 0x4205, 1, 2}, // Boost pressure*
+  {0x22, 0x586F, 1, 2}, // Oil pressure*
+  {0x22, 0x58EF, 1, 2}, // Fuel rail pressure*
+  {0x22, 0x580B, 1, 2}, // MAP
+  {0x22, 0x5800, 1, 2}, // Trip time
+  {0x01, 0x000D, 1, 1}, // Vehicle speed mi/hr
+  {0x22, 0x4403, 1, 4}, // Fuel consumption since last oil change**
+  {0x22, 0x5889, 1, 2}, // Lambda
+  {0x22, 0x5818, 1, 1}, // MAF
+  // *  Subtract this from the baro pressure to get true pressure value
+  // ** Subtract this from first reading to get trip consumption
+};
+
+// Scale and offset for each parameter
+static float PIDsScalingArray [(int)PID_MAX_STATE][2] = {
+  // {scale, offset}
+  {1, -60}, // Oil temperature
+  {1, -40}, // Coolant temperature
+  {(0.0390625 * HPA_TO_PSI), 0}, // Baro/ambient pressure
+  {(0.078125 * HPA_TO_PSI), 0}, // Boost pressure*
+  {HPA_TO_PSI, 0}, // Oil pressure*
+  {(0.0005 * MPA_TO_PSI), 0}, // Fuel rail pressure*
+  {(0.0390625 * HPA_TO_PSI), 0}, // MAP
+  {0.100000001, 0}, // Trip time
+  {0.621371, 0}, // Vehicle speed mi/hr
+  {(0.00012207 * L_TO_GAL), 0}, // Fuel consumption since last oil change**
+  {0.000244141, 0}, // Lambda
+  {4, 0} // MAF
+};
 
 /******************************************************************************
 *                              HELPER FUNCTIONS                               *
@@ -63,6 +122,26 @@ void IRAM_ATTR RegButton() {
     buttonPressed = false;
   }
 }
+
+void processPidState(ELM327 &elm)
+{
+    static uint8_t pidState = 0;
+    const auto &req = pidTable[pidState];
+
+    int value = REQUEST_DATA(elm, req.pidIndex);
+
+    if (elm.nb_rx_state == ELM_SUCCESS)
+    {
+        req.onSuccess(value);
+        pidState = (pidState + 1) % (sizeof(pidTable) / sizeof(pidTable[0]));
+    }
+    else if (elm.nb_rx_state != ELM_GETTING_MSG)
+    {
+        elm.printError();
+        pidState = (pidState + 1) % (sizeof(pidTable) / sizeof(pidTable[0]));
+    }
+}
+
 
 // Calculate brightness level based on ambient light sensor input
 uint8_t CalculateBrightness() {
@@ -84,6 +163,13 @@ uint8_t CalculateBrightness() {
   return brightness_setting;
 }
 
+void handleOilTemp(int v) { data.OilTemp = v; }
+
+void handleCoolantTemp(int v) { data.CoolantTemp = v; }
+
+void handleBoost(int v) { data.BoostPSI = (v - 14.7f); } 
+
+
 /******************************************************************************
 *                                    MACROS                                   *
 ******************************************************************************/
@@ -94,6 +180,20 @@ uint8_t CalculateBrightness() {
 #define INCREMENT_GAUGE_TYPE(type) do { \
   type = (GaugeType)( ((int)type + 1) % GAUGE_TYPE_MAX ); \
   } while(0)
+
+#define REQUEST_DATA(scanner, index) (\
+  scanner.processPID( \
+    PIDsArray[index][0], \
+    PIDsArray[index][1],  \
+    PIDsArray[index][2],  \
+    PIDsArray[index][3],  \
+    PIDsScalingArray[index][0],  \
+    PIDsScalingArray[index][1] \
+  ) \
+)
+
+#define IS_RX_SUCCESS(scanner) (scanner.nb_rx_state == ELM_SUCCESS)
+#define IS_RX_FAIL(scanner) (scanner.nb_rx_state != ELM_GETTING_MSG)
 
 /******************************************************************************
 *                                INIT FUNCTION                                *
@@ -159,118 +259,36 @@ void loop() {
   static unsigned long brightnessTimer = 0;
   // PID to read
   static PID_States currPID = PID_OIL_TEMP;
+  // Variable to track the first cycle in order to get initial fuel consmption reading
+  static bool gotInitialFuelConsumption = false;
 
+  int PIDsArrayIndex = (int)currPID;
   switch (currPID){
-    
     case PID_OIL_TEMP:
     {
-      // standard PID is not broadcast
-      // float oilTemp = main_ELM327.oilTemp();
-      // oil temperature sensor does not exist on the R56 mini, this is an approximation
-
-      // according to reddit post https://www.reddit.com/r/MINI/comments/10ehcu1/torque_pro_r56_n18_n16_oil_pressure_logging/
-      // use mode 0x22, PID 0x5822
-      // formula is A*9/5-76
-      // guess of 1 byte data length: A = 0 to 255 --> range of -76F to +383F?
-      // at ambient temperature, getting 83 --> 73F = 23C. need live testing
-
-      // request special PID for oil temperature
-      // mode 0x22, PID 0x5822, expect 1 response, expect 1 byte
-      int oilTemp = main_ELM327.processPID(0x22, 0x5822, 1, 1, 1, 1);
-      // use integer division to process
-      // oilTemp = (oilTemp * 9) / 5 - 76; // fahrenheit
-      oilTemp = oilTemp - 60; // celcius
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
+      // make a request to ELM327 for the oil temp PID
+      int oilTemp = REQUEST_DATA(main_ELM327, PIDsArrayIndex);
+      if (IS_RX_SUCCESS(main_ELM327))
       {
         data.OilTemp = oilTemp;
-        // Serial.printf("%d | Oil temp: %d degC\n", currPID, oilTemp);
         INCREMENT_PID_STATE(currPID);
       }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
+      else if (IS_RX_FAIL(main_ELM327))
       {
         main_ELM327.printError();
         INCREMENT_PID_STATE(currPID);
       }
-
       break;
     }
     case PID_COOLANT_TEMP:
     {
-      int coolantTemp = main_ELM327.processPID(SERVICE_01, 0x05, 1, 1, 1, 1);
-      coolantTemp = coolantTemp - 40;
-
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
+      int coolantTemp = REQUEST_DATA(main_ELM327, PIDsArrayIndex);
+      if (IS_RX_SUCCESS(main_ELM327))
       {
         data.CoolantTemp = coolantTemp;
-        // Serial.printf("%d | Coolant temp: %d degC\n", currPID, coolantTemp);
-        INCREMENT_PID_STATE(currPID);
-
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        main_ELM327.printError();
         INCREMENT_PID_STATE(currPID);
       }
-      break;
-    }
-    case PID_OIL_PRESS: 
-    {
-      // no standard PID for oil pressure
-      // oil pressure sensor is a 1/0 switch on the R56 mini, this is an approximation
-
-      // according to reddit post https://www.reddit.com/r/MINI/comments/10ehcu1/torque_pro_r56_n18_n16_oil_pressure_logging/
-      // use mode 0x22, PID 0x586F
-      // formula is ((A*256)+B)*(1/69)-BARO()
-      // guess: A = 0 to 255, baro is range ??
-
-      // request special PID for oil temperature
-      // mode 0x22, PID 0x586F, expect 1 response, expect 1 byte?
-      int oilPress = main_ELM327.processPID(0x22, 0x586F, 1, 1, 1, 1);
-      // use integer division to process
-      oilPress = ( (oilPress * 255) + data.BaroPress) / 69 - data.BaroPress; // what unit?
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        data.OilPress = oilPress;
-        // Serial.printf("%d | Oil pressure: %d PSI\n", currPID, oilPress);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        main_ELM327.printError();
-        INCREMENT_PID_STATE(currPID);
-      }
-
-      break;
-    }
-    case PID_FUEL_PRESS:
-    {
-      // float fuel_rail_press = main_ELM327.fuelRailPressure();
-      int fuel_rail_press = main_ELM327.processPID(SERVICE_01, 0x23, 1, 2, 1, 1);
-      fuel_rail_press = 10 * (256 * fuel_rail_press) + data.BaroPress;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        data.FuelPress = fuel_rail_press;
-        // Serial.printf("%d | Fuel pressure: %d KPa\n", currPID, fuel_rail_press);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        main_ELM327.printError();
-        INCREMENT_PID_STATE(currPID);
-      }
-      break;
-    }
-    case PID_INTAKE_PRESS:
-    {
-      // float MAP = main_ELM327.manifoldPressure();
-      int MAP = main_ELM327.processPID(SERVICE_01, 0x0B, 1, 1, 1, 1);
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        data.MAP = MAP;
-        // Serial.printf("%d | MAP: %d KPa\n", currPID, MAP);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
+      else if (IS_RX_FAIL(main_ELM327))
       {
         main_ELM327.printError();
         INCREMENT_PID_STATE(currPID);
@@ -279,106 +297,52 @@ void loop() {
     }
     case PID_BARO_PRESS:
     {
-      // float baro_press = main_ELM327.absBaroPressure();
-      int baro_press = main_ELM327.processPID(SERVICE_01, 0x33, 1, 1, 1, 1);
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        data.BaroPress = baro_press;
-        // Serial.printf("%d | Baro Pressure: %d KPa\n", currPID, baro_press);
-        
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        main_ELM327.printError();
-        INCREMENT_PID_STATE(currPID);
-      }
+      break;
+    }
+    case PID_BOOST_PRESS:
+    {
+      break;
+    }
+    case PID_OIL_PRESS:
+    {
+      break;
+    }
+    case PID_FUEL_PRESS:
+    {
+      break;
+    }
+    case PID_INTAKE_PRESS:
+    {
       break;
     }
     case PID_TRIP_TIME:
     {
-      int run_time = main_ELM327.runTime();
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        data.RunTime = run_time;
-        // Serial.printf("%d | Trip time: %d KPa\n", currPID, run_time);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        main_ELM327.printError();
-        INCREMENT_PID_STATE(currPID);
-      }
+      break;
+    }
+    case PID_VEHICLE_SPEED:
+    {
+      break;
+    }
+    case PID_FUEL_CONS:
+    {
       break;
     }
     case PID_AIR_FUEL_RATIO:
     {
-      float AFR = main_ELM327.commandedAirFuelRatio();
-      // inst_fuel_rate = inst_fuel_rate * 100 / 255;
-      // float inst_fuel_rate = main_ELM327.fuelRate();
-      
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        data.AFR = AFR;
-        // Serial.printf("%d | AFR: %d\n", currPID, AFR);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        main_ELM327.printError();
-        INCREMENT_PID_STATE(currPID);
-      }
       break;
     }
     case PID_MASS_AIRFLOW:
     {
-      int MAF = main_ELM327.processPID(SERVICE_01, 0x10, 1, 2, 1, 1); // g/s
-      MAF = ((256 * MAF) + data.BaroPress) / 100;
-      // int MAF = main_ELM327.mafRate();
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        data.MAF = MAF;
-        // Serial.printf("%d | MAF: %d g/s\n", currPID, MAF);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        main_ELM327.printError();
-        INCREMENT_PID_STATE(currPID);
-      }
       break;
     }
     // got to last PID to check
-    // now perform extra calculations and gauge drawing
+    // now perform extra calculations (?) and gauge drawing
     case PID_MAX_STATE:
     {
-      /*
-      calculation for instantaneous fuel consumption (gal/s):
-      (MAF) g air   1 g fuel      1 dm^3 fuel   0.264172 US gal
-      ----------- * ----------- * ----------- * ---------------
-      1 s           (AFR) g air   820 g fuel    1 dm^3 fuel
-      */
-      // float inst_fuel_rate = (data.MAF * 0.264172) / (data.AFR * 820);
-      /*
-      calculation for turbocharger boost pressure:
-      MAP - baro pressure
-      */
-      // float boost_press = data.MAP - data.BaroPress;
-      float boost_press = 0;
-      data.BoostPress = boost_press;
-
       // update all gauge data, gauge library handles repainting internally 
       mainGauge.update(data);
 
-      // Serial.print("Inst fuel rate: ");
-      // Serial.print(inst_fuel_rate);
-      // Serial.print(" gal/s");
-      // Serial.println();
-      // Serial.print("Boost pressure: ");
-      // Serial.print(boost_press);
-      // Serial.print(" KPa");
-      // Serial.println();
-      // Serial.println("last PID, resetting");
+      // reset state variable
       currPID = PID_States(0);
       break;
     }

@@ -27,6 +27,9 @@
 #define RX_FAIL 1
 #define RX_NONE 2
 
+#define HPA_TO_PSI 0.0145038
+#define MPA_TO_PSI 145.037738
+
 /******************************************************************************
 *                                  TYPEDEFS                                   *
 ******************************************************************************/
@@ -35,30 +38,24 @@ typedef enum
 {
   PID_OIL_TEMP,
   PID_COOLANT_TEMP,
-  PID_AMBIENT_PRESS,
   PID_RANGE,
+  PID_AMBIENT_PRESS,
   PID_BOOST_PRESS,
+  PID_OIL_PRESS,
+  PID_FUEL_PRESS,
+  PID_BRAKE_PRESS,
+  PID_BRAKE_PRESS2,
   PID_ENGINE_SPEED,
   PID_GEAR,
   PID_BATTERY_VOLTAGE,
-  PID_OIL_PRESS,
   PID_AFR_TARGET,
   PID_AFR_ACTUAL,
   PID_SPEED,
-  PID_LON_ACCEL,
-  PID_LAT_ACCEL,
-  PID_FUEL_PRESS,
-  PID_BRAKE_PRESS,
   PID_TRIP_TIME,
   PID_MAP,
   PID_IAT,
   PID_MAF,
-  PID_FUEL_FLOW_RATE,
-  PID_FUEL_CONS1,
-  PID_FUEL_CONS2,
-  PID_FUEL_CONS3,
-  PID_FUEL_CONS4,
-  PID_FUEL_CORRECTION_FACTOR,
+  PID_FUEL_CONS,
   PID_MAX_STATE,
 } PID_States;
 
@@ -105,6 +102,8 @@ int CheckScannerState(ELM327 scanner)
   PID = PID_States((int)PID + 1); \
   } while(0)
 
+#define MSG_RECEIVED(scanner) (scanner.nb_rx_state == ELM_SUCCESS)
+#define MSG_NOT_RECEIVED(scanner) (scanner.nb_rx_state != ELM_GETTING_MSG)
 
 /******************************************************************************
 *                                INIT FUNCTION                                *
@@ -164,6 +163,7 @@ void setup() {
 ******************************************************************************/
 void loop() {
   static PID_States currPID = PID_OIL_TEMP;
+  static float latestAmbientPressure_PSI = 14.7; 
 
   switch (currPID){
     
@@ -219,6 +219,132 @@ void loop() {
     {
       uint8_t service = 0x22; uint16_t PID = 0x5834;
       const char* sensor = "AmbientPressure"; const char* unit = "hPa";
+      float processedVal = main_ELM327.processPID(service, PID, 1, 1, (0.0390625 * HPA_TO_PSI), 0);
+      
+      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
+      {
+        latestAmbientPressure_PSI = processedVal;
+        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, 9999, processedVal, unit);
+        INCREMENT_PID_STATE(currPID);
+      }
+      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
+      {
+        // main_ELM327.printError();
+        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
+        INCREMENT_PID_STATE(currPID);
+      }
+      break;
+    }
+    case PID_BOOST_PRESS:
+    {
+      uint8_t service = 0x22; uint16_t PID = 0x4205;
+      const char* sensor = "BoostPressure"; const char* unit = "hPa";
+      float processedVal  = main_ELM327.processPID(service, PID, 1, 1, (0.078125 * HPA_TO_PSI), 0) - latestAmbientPressure_PSI;
+      
+      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
+      {
+        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, 9999, processedVal, unit);
+        INCREMENT_PID_STATE(currPID);
+      }
+      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
+      {
+        // main_ELM327.printError();
+        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
+        INCREMENT_PID_STATE(currPID);
+      }
+      break;
+    }
+    case PID_OIL_PRESS:
+    {
+      uint8_t service = 0x22; uint16_t PID = 0x586F;
+      const char* sensor = "OilPressure"; const char* unit = "hPa";
+      float processedVal = main_ELM327.processPID(service, PID, 1, 1, HPA_TO_PSI, 0) - latestAmbientPressure_PSI;
+      
+      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
+      {
+        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, 9999, processedVal, unit);
+        INCREMENT_PID_STATE(currPID);
+      }
+      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
+      {
+        // main_ELM327.printError();
+        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
+        INCREMENT_PID_STATE(currPID);
+      }
+      // int scannerState = CheckScannerState(main_ELM327);
+      // if (scannerState == RX_PASS){
+        
+      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
+      //   INCREMENT_PID_STATE(currPID);
+      // }
+      // else {
+      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
+      //   INCREMENT_PID_STATE(currPID);
+      // }
+      break;
+    }
+    case PID_FUEL_PRESS:
+    {
+      uint8_t service = 0x22; uint16_t PID = 0x58EF;
+      const char* sensor = "FuelRailPress(Filtered)"; const char* unit = "MPa";
+      float processedVal = main_ELM327.processPID(service, PID, 1, 1, (0.0005 * MPA_TO_PSI), 0) - latestAmbientPressure_PSI;
+      
+      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
+      {
+        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, 9999, processedVal, unit);
+        INCREMENT_PID_STATE(currPID);
+      }
+      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
+      {
+        // main_ELM327.printError();
+        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
+        INCREMENT_PID_STATE(currPID);
+      }
+      // int scannerState = CheckScannerState(main_ELM327);
+      // if (scannerState == RX_PASS){
+        
+      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
+      //   INCREMENT_PID_STATE(currPID);
+      // }
+      // else {
+      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
+      //   INCREMENT_PID_STATE(currPID);
+      // }
+      break;
+    }
+    case PID_BRAKE_PRESS:
+    {
+      uint8_t service = 0x22; uint16_t PID = 0x58B7;
+      const char* sensor = "BrakePressure"; const char* unit = "hPa";
+      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
+      float processedVal = rawVal;
+      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
+      {
+        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
+        INCREMENT_PID_STATE(currPID);
+      }
+      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
+      {
+        // main_ELM327.printError();
+        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
+        INCREMENT_PID_STATE(currPID);
+      }
+      // int scannerState = CheckScannerState(main_ELM327);
+      // if (scannerState == RX_PASS){
+        
+      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
+      //   INCREMENT_PID_STATE(currPID);
+      // }
+      // else {
+      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
+      //   INCREMENT_PID_STATE(currPID);
+      // }
+      break;
+    }
+    case PID_BRAKE_PRESS2:
+    {
+      uint8_t service = 0x22; uint16_t PID = 0x58B7;
+      const char* sensor = "AmbientPressMinusBrakeBoosterPress"; const char* unit = "hPa";
       int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
       float processedVal = 0.0390625 * rawVal;
       if (main_ELM327.nb_rx_state == ELM_SUCCESS)
@@ -273,35 +399,7 @@ void loop() {
       // }
       break;
     }
-    case PID_BOOST_PRESS:
-    {
-      uint8_t service = 0x22; uint16_t PID = 0x4205;
-      const char* sensor = "BoostPressure"; const char* unit = "hPa";
-      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
-      float processedVal = 0.078125 * rawVal;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        // main_ELM327.printError();
-        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-        INCREMENT_PID_STATE(currPID);
-      }
-      // int scannerState = CheckScannerState(main_ELM327);
-      // if (scannerState == RX_PASS){
-        
-      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      // else {
-      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      break;
-    }
+    
     case PID_ENGINE_SPEED:
     {
       uint8_t service = 0x22; uint16_t PID = 0x4807;
@@ -389,35 +487,7 @@ void loop() {
       // }
       break;
     }
-    case PID_OIL_PRESS:
-    {
-      uint8_t service = 0x22; uint16_t PID = 0x586F;
-      const char* sensor = "OilPressure"; const char* unit = "hPa";
-      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
-      float processedVal = rawVal;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        // main_ELM327.printError();
-        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-        INCREMENT_PID_STATE(currPID);
-      }
-      // int scannerState = CheckScannerState(main_ELM327);
-      // if (scannerState == RX_PASS){
-        
-      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      // else {
-      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      break;
-    }
+    
     case PID_AFR_TARGET:
     {
       uint8_t service = 0x22; uint16_t PID = 0x5816;
@@ -478,125 +548,11 @@ void loop() {
     }
     case PID_SPEED:
     {
-      uint8_t service = 0x22; uint16_t PID = 0x4AB1;
+      // uint8_t service = 0x22; uint16_t PID = 0x4AB1;
+      uint8_t service = 0x01; uint16_t PID = 0x0D;
       const char* sensor = "Speed"; const char* unit = "km/hr";
       int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
-      float processedVal = rawVal * 0.0078125;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        // main_ELM327.printError();
-        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-        INCREMENT_PID_STATE(currPID);
-      }
-      // int scannerState = CheckScannerState(main_ELM327);
-      // if (scannerState == RX_PASS){
-        
-      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      // else {
-      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      break;
-    }
-    case PID_LON_ACCEL:
-    {
-      uint8_t service = 0x22; uint16_t PID = 0x4811;
-      const char* sensor = "AccelLongitudinal"; const char* unit = "m/s2";
-      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
-      float processedVal = 0.216999993 * rawVal;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        // main_ELM327.printError();
-        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-        INCREMENT_PID_STATE(currPID);
-      }
-      // int scannerState = CheckScannerState(main_ELM327);
-      // if (scannerState == RX_PASS){
-        
-      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      // else {
-      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      break;
-    }
-    case PID_LAT_ACCEL:
-    {
-      uint8_t service = 0x22; uint16_t PID = 0x4812;
-      const char* sensor = "AccelLateral"; const char* unit = "m/s2";
-      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
-      float processedVal = 0.0015625 * rawVal;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        // main_ELM327.printError();
-        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-        INCREMENT_PID_STATE(currPID);
-      }
-      // int scannerState = CheckScannerState(main_ELM327);
-      // if (scannerState == RX_PASS){
-        
-      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      // else {
-      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      break;
-    }
-    case PID_FUEL_PRESS:
-    {
-      uint8_t service = 0x22; uint16_t PID = 0x58EF;
-      const char* sensor = "FuelRailPress(Filtered)"; const char* unit = "MPa";
-      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
-      float processedVal = rawVal * 0.0005;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        // main_ELM327.printError();
-        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-        INCREMENT_PID_STATE(currPID);
-      }
-      // int scannerState = CheckScannerState(main_ELM327);
-      // if (scannerState == RX_PASS){
-        
-      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      // else {
-      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      break;
-    }
-    case PID_BRAKE_PRESS:
-    {
-      uint8_t service = 0x22; uint16_t PID = 0x58B7;
-      const char* sensor = "BrakePressure"; const char* unit = "hPa";
-      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
+      // float processedVal = rawVal * 0.0078125;
       float processedVal = rawVal;
       if (main_ELM327.nb_rx_state == ELM_SUCCESS)
       {
@@ -621,6 +577,8 @@ void loop() {
       // }
       break;
     }
+    
+    
     case PID_TRIP_TIME:
     {
       uint8_t service = 0x22; uint16_t PID = 0x5800;
@@ -737,157 +695,12 @@ void loop() {
       // }
       break;
     }
-    case PID_FUEL_FLOW_RATE:
-    {
-      uint8_t service = 0x22; uint16_t PID = 0x4521;
-      const char* sensor = "FuelFlowRate"; const char* unit = "kg/hr";
-      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
-      float processedVal = 0.100000001 * rawVal;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        // main_ELM327.printError();
-        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-        INCREMENT_PID_STATE(currPID);
-      }
-      // int scannerState = CheckScannerState(main_ELM327);
-      // if (scannerState == RX_PASS){
-        
-      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      // else {
-      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      break;
-    }
-    case PID_FUEL_CONS1:
-    {
-      uint8_t service = 0x22; uint16_t PID = 0x4ABF;
-      const char* sensor = "FuelCons"; const char* unit = "L/hr";
-      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
-      float processedVal = 0.003891051 * rawVal;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        // main_ELM327.printError();
-        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-        INCREMENT_PID_STATE(currPID);
-      }
-      // int scannerState = CheckScannerState(main_ELM327);
-      // if (scannerState == RX_PASS){
-        
-      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      // else {
-      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      break;
-    }
-    case PID_FUEL_CONS2:
-    {
-      uint8_t service = 0x22; uint16_t PID = 0x4AC0;
-      const char* sensor = "FuelCons_Regulated"; const char* unit = "L/hr";
-      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
-      float processedVal = 0.003891051 * rawVal;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        // main_ELM327.printError();
-        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-        INCREMENT_PID_STATE(currPID);
-      }
-      // int scannerState = CheckScannerState(main_ELM327);
-      // if (scannerState == RX_PASS){
-        
-      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      // else {
-      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      break;
-    }
-    case PID_FUEL_CONS3:
-    {
-      uint8_t service = 0x22; uint16_t PID = 0x4522;
-      const char* sensor = "FuelMassHomogeneousCyl0"; const char* unit = "mg/stroke";
-      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
-      float processedVal = 0.021194782 * rawVal;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        // main_ELM327.printError();
-        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-        INCREMENT_PID_STATE(currPID);
-      }
-      // int scannerState = CheckScannerState(main_ELM327);
-      // if (scannerState == RX_PASS){
-        
-      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      // else {
-      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      break;
-    }
-    case PID_FUEL_CONS4:
+    case PID_FUEL_CONS:
     {
       uint8_t service = 0x22; uint16_t PID = 0x4403;
       const char* sensor = "FuelConsSinceOilChange"; const char* unit = "L?";
       int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
       float processedVal = 0.00012207 * rawVal;
-      if (main_ELM327.nb_rx_state == ELM_SUCCESS)
-      {
-        Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-        INCREMENT_PID_STATE(currPID);
-      }
-      else if (main_ELM327.nb_rx_state != ELM_GETTING_MSG)
-      {
-        // main_ELM327.printError();
-        Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-        INCREMENT_PID_STATE(currPID);
-      }
-      // int scannerState = CheckScannerState(main_ELM327);
-      // if (scannerState == RX_PASS){
-        
-      //   Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      // else {
-      //   Serial.printf("%li,%s,0x%x,0x%x,N/A,N/A,N/A\n", millis(), sensor, service, PID);
-      //   INCREMENT_PID_STATE(currPID);
-      // }
-      break;
-    }
-    case PID_FUEL_CORRECTION_FACTOR:
-    {
-      uint8_t service = 0x22; uint16_t PID = 0x4A6C;
-      const char* sensor = "FuelCorrection"; const char* unit = "-";
-      int rawVal = main_ELM327.processPID(service, PID, 1, 1, 1, 1);
-      float processedVal = 0.001 * rawVal;
       if (main_ELM327.nb_rx_state == ELM_SUCCESS)
       {
         Serial.printf("%li,%s,0x%x,0x%x,%d,%.2f,%s\n", millis(), sensor, service, PID, rawVal, processedVal, unit);
@@ -917,7 +730,7 @@ void loop() {
       break;
     }
   }
-  delay(10);
+  // delay(10);
 }
 
 
