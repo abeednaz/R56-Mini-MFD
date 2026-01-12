@@ -1,9 +1,11 @@
+
+
 <h1>R56 MINI Cooper Multi-Function Display</h1>
 
 ---
 
 <h2>Project Background</h2>
-The second generation of BMW MINI Cooper S is a great car, but it is missing important metrology from the factory. It has a coolant temperature sensor, but there is no gauge to view the temperature. Technically a driver can view the temperature by entering a [secret menu](https://youtu.be/KhFTyjIRaBU?si=EUw38T1VuMLcuM9A), but this is not practical except for debugging purposes as it requires a long series of inputs to display. The car otherwise uses the coolant temperature sensor only to flash a warning light when the engine has already overheated. 
+The second generation of BMW MINI Cooper S is a great car, but it is missing important metrology from the factory. It has a coolant temperature sensor, but there is no gauge to view the temperature. Technically a driver can view the temperature by entering a <a href="https://youtu.be/KhFTyjIRaBU?si=EUw38T1VuMLcuM9A">secret menu</a>, but this is not practical except for debugging purposes as it requires a long series of inputs to display. The car otherwise uses the coolant temperature sensor only to flash a warning light when the engine has already overheated. 
 
 Knowledge of engine temperature is important to me for two reasons:
 
@@ -15,19 +17,20 @@ Aftermarket solutions such as the ScanGauge II and CravenSpeed Gauge Kit exist; 
 <h2>Project Demonstrations</h2>
 
 <h3>Scrolling through the different available sensors</h3>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/rgCeRVjkSXw?si=3H1QRIxhtuY0Y50j" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+https://github.com/user-attachments/assets/e3969205-8839-4358-a2c1-934d2600cd6b
 
 <h3>Getting engine up to operating temperature</h3>
 
-<iframe width="393" height="699" src="https://www.youtube.com/embed/kCMfaQy_Up4" title="R56 MFD - Oil temperature monitoring" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+https://github.com/user-attachments/assets/219b7ffb-3163-47f8-8801-7a190b6d4f65
 
 <h3>Boost pressure demonstration</h3>
 
-<iframe width="393" height="699" src="https://www.youtube.com/embed/A-MOzjsqKMw" title="R56 MFD - Boost pressure demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+https://github.com/user-attachments/assets/48d6ecf0-7964-4478-b5fc-5cb366bfa986
 
 <h2>Project Block Diagram</h2>
 
-![](/Reference/readme_assets/R56_MFD_block_diagram.png) 
+<img width="3655" height="2315" alt="R56_MFD_block_diagram" src="https://github.com/user-attachments/assets/e68424b2-4ba9-4095-88f7-6aba3d5a677b" />
 
 This project consists of the following components:
 - COTS ESP32-based microcontroller with AMOLED screen
