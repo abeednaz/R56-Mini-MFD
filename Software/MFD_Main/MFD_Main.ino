@@ -387,9 +387,14 @@ void loop() {
       // Serial.print("Switching gauges to:");
       // Serial.println(int(type));
     }
-    // Long press: undefined action
-    else {
+    // Long press: switch between Main screen and Trip Computer screen 
+    else if (buttonInterval > BTN_2_ACTION) {
       // Serial.println("Secondary action");
+      if (mainGauge.getViewType() == DISPLAY_TYPE_GAUGE_MAIN){
+        mainGauge.viewTripComputer();
+      } else {
+        mainGauge.viewGaugeMain();
+      }
     }
     
   }

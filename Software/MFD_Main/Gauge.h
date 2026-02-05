@@ -153,6 +153,14 @@ const char TRIP_ICON_FILENAMES[TRIP_NUM_ICONS][32] = {
   "fuel_cons_icon.bin",
 };
 
+// define origins (top left) of each trip computer text field
+const uint16_t TRIP_TEXT_POSITIONS[TRIP_NUM_ICONS][2] = {
+  { 216, 50  },   // top-left position of car icon (trip distance)
+  { 216, 150 },  // top-left position of clock icon (trip time)
+  { 216, 256 },  // top-left position of speedo icon (avg speed)
+  { 216, 356 },  // top-left position of fuel tank icon (trip consumption)
+};
+
 // Data type to update the gauge from external driver code
 typedef struct
 {
@@ -192,6 +200,7 @@ public:
   // - (future) G-meter
   void viewGaugeMain();
   void viewTripComputer();
+  int getViewType();
 
   // update full data struct
   // Future: individual functions to update the struct?
@@ -206,7 +215,12 @@ private:
 
   // screen specifics
   lv_obj_t *_label;         // number displayed on screen
+  lv_obj_t *_trip_dist_label;         // number displayed on screen
+  lv_obj_t *_trip_time_label;         // number displayed on screen
+  lv_obj_t *_trip_speed_label;         // number displayed on screen
+  lv_obj_t *_trip_cons_label;         // number displayed on screen
   lv_style_t _label_style;  // style for the number displayed
+  lv_style_t _trip_label_style;
   lv_obj_t *_main_screen;   // active screen -- need to have multiple for different gauge types
   lv_obj_t *_trip_computer_screen;
 

@@ -500,13 +500,12 @@ void Gauge::begin() {
 
   createGaugeImages(DISPLAY_TYPE_TRIP_COMPUTER);
 
-  // font definition
-  lv_font_t * MINI_font_numbers;
-  MINI_font_numbers = lv_font_load("S:/images/main_gauge/font/MINI_font_numbers_96.bin");
+  // font definition for center number
+  lv_font_t * MINI_font_numbers = lv_font_load("S:/images/main_gauge/font/MINI_font_numbers_96.bin");
   if(MINI_font_numbers == NULL) {
-    Serial.println("Font load failed!");
+    Serial.println("Main Gauge Font load failed!");
   } else {
-    Serial.println("Font loaded OK.");
+    Serial.println("Main Gauge Font loaded OK.");
   }
 
   // Configure number in the center of the gauge
@@ -517,17 +516,43 @@ void Gauge::begin() {
   lv_obj_set_style_text_font(_label, MINI_font_numbers, LV_PART_MAIN); 
   lv_obj_add_style(_label, &_label_style, int(LV_PART_MAIN) | int(LV_STATE_DEFAULT));
 
+  // Configure number labels for the trip computer
+  lv_font_t * trip_computer_font = lv_font_load("S:/images/main_gauge/font/roboto_condensed_40.bin");
+  if(trip_computer_font == NULL) {
+    Serial.println("Trip Computer Font load failed!");
+  } else {
+    Serial.println("Trip Computer Font loaded OK.");
+  }
+
+  _trip_dist_label = lv_label_create(_trip_computer_screen);
+  _trip_time_label = lv_label_create(_trip_computer_screen);
+  _trip_speed_label = lv_label_create(_trip_computer_screen);
+  _trip_cons_label = lv_label_create(_trip_computer_screen);
+  lv_style_init(&_trip_label_style);
+  lv_style_set_text_color(&_trip_label_style, lv_color_hex(0xfa4300)); 
+  lv_obj_set_style_text_font(_trip_dist_label,  trip_computer_font, LV_PART_MAIN); 
+  lv_obj_set_style_text_font(_trip_time_label,  trip_computer_font, LV_PART_MAIN); 
+  lv_obj_set_style_text_font(_trip_speed_label, trip_computer_font, LV_PART_MAIN); 
+  lv_obj_set_style_text_font(_trip_cons_label,  trip_computer_font, LV_PART_MAIN); 
+  lv_obj_add_style(_trip_dist_label,  &_trip_label_style, int(LV_PART_MAIN) | int(LV_STATE_DEFAULT));
+  lv_obj_add_style(_trip_time_label,  &_trip_label_style, int(LV_PART_MAIN) | int(LV_STATE_DEFAULT));
+  lv_obj_add_style(_trip_speed_label, &_trip_label_style, int(LV_PART_MAIN) | int(LV_STATE_DEFAULT));
+  lv_obj_add_style(_trip_cons_label,  &_trip_label_style, int(LV_PART_MAIN) | int(LV_STATE_DEFAULT));
+
+  lv_obj_align(_trip_dist_label,  LV_ALIGN_TOP_LEFT, TRIP_TEXT_POSITIONS[0][0], TRIP_TEXT_POSITIONS[0][1]);
+  lv_obj_align(_trip_time_label,  LV_ALIGN_TOP_LEFT, TRIP_TEXT_POSITIONS[1][0], TRIP_TEXT_POSITIONS[1][1]);
+  lv_obj_align(_trip_speed_label, LV_ALIGN_TOP_LEFT, TRIP_TEXT_POSITIONS[2][0], TRIP_TEXT_POSITIONS[2][1]);
+  lv_obj_align(_trip_cons_label,  LV_ALIGN_TOP_LEFT, TRIP_TEXT_POSITIONS[3][0], TRIP_TEXT_POSITIONS[3][1]);
+
+  lv_label_set_text(_trip_dist_label,  "342.5 mi");
+  lv_label_set_text(_trip_time_label,  "4h 13min");
+  lv_label_set_text(_trip_speed_label, "79.5 mph");
+  lv_label_set_text(_trip_cons_label,  "32.8 mpg");
+
   // initialize gauge as an oil temp gauge
   setType(GAUGE_TYPE_OIL_TEMP);
 
   paintTripIcons();
-  
-  // while(1){
-  //   delay(5000);
-  //   viewTripComputer();
-  //   delay(5000);
-  //   viewGaugeMain();
-  // }
 
   // while(1); // TEMPORARY STOP
 }
@@ -567,10 +592,17 @@ GaugeType Gauge::getType()
 void Gauge::viewGaugeMain()
 {
   lv_scr_load(_main_screen);
+  _gaugeViewType = DISPLAY_TYPE_GAUGE_MAIN;
 }
 void Gauge::viewTripComputer()
 {
   lv_scr_load(_trip_computer_screen);
+  _gaugeViewType = DISPLAY_TYPE_TRIP_COMPUTER;
+}
+
+int Gauge::getViewType()
+{
+  return _gaugeViewType;
 }
 
 // Gauge.update()
