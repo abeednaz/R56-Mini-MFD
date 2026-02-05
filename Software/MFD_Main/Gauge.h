@@ -11,6 +11,7 @@
 #include "Arduino.h"
 
 #define GAUGE_NUM_INDICES 9
+#define TRIP_NUM_ICONS 4
 
 #define OTEMP_MIN 10
 #define OTEMP_MAX 170
@@ -27,8 +28,10 @@
 #define BPRESS_MIN 0
 #define BPRESS_MAX 12
 
-typedef enum
-{
+#define DISPLAY_TYPE_GAUGE_MAIN 0
+#define DISPLAY_TYPE_TRIP_COMPUTER 1
+
+typedef enum {
   GAUGE_TYPE_OIL_TEMP,
   GAUGE_TYPE_COOLANT_TEMP,
   GAUGE_TYPE_OIL_PRESS,
@@ -46,75 +49,57 @@ typedef struct
 } Limits;
 
 const Limits GaugeLimits[(int)GAUGE_TYPE_MAX] = {
-  {OTEMP_MIN, OTEMP_MAX},
-  {CTEMP_MIN, CTEMP_MAX},
-  {OPRESS_MIN, OPRESS_MAX},
-  {FPRESS_MIN, FPRESS_MAX},
-  {BPRESS_MIN, BPRESS_MAX}
-};
-
-const char GAUGE_IND_FILENAMES[GAUGE_NUM_INDICES][32] = 
-{
-  "ind8_off.bin",
-  "ind9_off.bin",
-  "ind10_off.bin",
-  "ind11_off.bin",
-  "ind12_off.bin",
-  "ind1_off.bin",
-  "ind2_off.bin",
-  "ind3_off.bin",
-  "ind4_off.bin",
+  { OTEMP_MIN, OTEMP_MAX },
+  { CTEMP_MIN, CTEMP_MAX },
+  { OPRESS_MIN, OPRESS_MAX },
+  { FPRESS_MIN, FPRESS_MAX },
+  { BPRESS_MIN, BPRESS_MAX }
 };
 
 // define origins (top left) of each index image
-const uint16_t GAUGE_IND_POSITIONS[GAUGE_NUM_INDICES][2] = 
-{
-  {  30, 288 }, // top-left position of index 8
-  {   6, 208 }, // top-left position of index 9
-  {  30, 103 }, // top-left position of index 10
-  { 103, 30  }, // top-left position of index 11
-  { 208, 6   }, // top-left position of index 12
-  { 288, 30  }, // top-left position of index 1
-  { 341, 103 }, // top-left position of index 2
-  { 363, 208 }, // top-left position of index 3
-  { 341, 288 }, // top-left position of index 4
+const uint16_t GAUGE_IND_POSITIONS[GAUGE_NUM_INDICES][2] = {
+  { 30,  288 },   // top-left position of index 8
+  { 6,   208 },    // top-left position of index 9
+  { 30,  103 },   // top-left position of index 10
+  { 103, 30  },   // top-left position of index 11
+  { 208, 6   },    // top-left position of index 12
+  { 288, 30 },   // top-left position of index 1
+  { 341, 103 },  // top-left position of index 2
+  { 363, 208 },  // top-left position of index 3
+  { 341, 288 },  // top-left position of index 4
 };
 
 // define sizes of each index image
-const uint16_t GAUGE_IND_DIMENSIONS[GAUGE_NUM_INDICES][2] = 
-{
-  { 94, 75 }, // width, height of index 8
-  { 98, 50 }, // width, height of index 9
-  { 94, 75 }, // width, height of index 10
-  { 75, 94 }, // width, height of index 11
-  { 50, 98 }, // width, height of index 12
-  { 75, 94 }, // width, height of index 1
-  { 94, 75 }, // width, height of index 2
-  { 98, 50 }, // width, height of index 3
-  { 94, 75 }, // width, height of index 4
+const uint16_t GAUGE_IND_DIMENSIONS[GAUGE_NUM_INDICES][2] = {
+  { 94, 75 },  // width, height of index 8
+  { 98, 50 },  // width, height of index 9
+  { 94, 75 },  // width, height of index 10
+  { 75, 94 },  // width, height of index 11
+  { 50, 98 },  // width, height of index 12
+  { 75, 94 },  // width, height of index 1
+  { 94, 75 },  // width, height of index 2
+  { 98, 50 },  // width, height of index 3
+  { 94, 75 },  // width, height of index 4
 };
 
 // define origins (top left) of each sensor icon image
-const uint16_t GAUGE_ICON_POSITIONS[(int)GAUGE_TYPE_MAX][2] = 
-{
-  { 155, 385 }, // top-left position of oil icon (temp)
-  { 178, 346 }, // top-left position of coolant icon (temp)
-  { 155, 385 }, // top-left position of oil icon (pressure)
-  { 167, 332 }, // top-left position of fuel icon (pressure)
-  { 191, 374 }, // top-left position of turbo icon (boost pressure)
+const uint16_t GAUGE_ICON_POSITIONS[(int)GAUGE_TYPE_MAX][2] = {
+  { 155, 385 },  // top-left position of oil icon (temp)
+  { 178, 346 },  // top-left position of coolant icon (temp)
+  { 155, 385 },  // top-left position of oil icon (pressure)
+  { 167, 332 },  // top-left position of fuel icon (pressure)
+  { 191, 374 },  // top-left position of turbo icon (boost pressure)
 };
 // define sizes of each sensor icon image
-const uint16_t GAUGE_ICON_DIMENSIONS[(int)GAUGE_TYPE_MAX][2] = 
-{
-  { 161,  62 }, // width, height of oil icon (temp)
-  { 115, 105 }, // width, height of coolant icon (temp)
-  { 161,  62 }, // width, height of oil icon (pressure)
-  { 122, 122 }, // width, height of fuel icon (pressure)
-  {  88,  80 }, // width, height of turbo icon (boost pressure)
+const uint16_t GAUGE_ICON_DIMENSIONS[(int)GAUGE_TYPE_MAX][2] = {
+  { 161, 62 },   // width, height of oil icon (temp)
+  { 115, 105 },  // width, height of coolant icon (temp)
+  { 161, 62 },   // width, height of oil icon (pressure)
+  { 122, 122 },  // width, height of fuel icon (pressure)
+  { 88, 80 },    // width, height of turbo icon (boost pressure)
 };
 
-const char GAUGE_ICON_FILENAMES[GAUGE_TYPE_MAX][32] = 
-{
+const char GAUGE_ICON_FILENAMES[GAUGE_TYPE_MAX][32] = {
   "oil_icon.bin",
   "coolant_icon.bin",
   "oil_icon.bin",
@@ -123,30 +108,49 @@ const char GAUGE_ICON_FILENAMES[GAUGE_TYPE_MAX][32] =
 };
 
 // define origins (top left) of each unit image
-const uint16_t GAUGE_UNIT_POSITIONS[(int)GAUGE_TYPE_MAX][2] = 
-{
-  { 209, 316 }, // top-left position of oil unit (deg C)
-  { 300, 346 }, // top-left position of coolant unit (deg C)
-  { 209, 316 }, // top-left position of oil unit (PSI)
-  { 300, 346 }, // top-left position of fuel unit (PSI)
-  { 209, 316 }, // top-left position of boost unit (PSI)
+const uint16_t GAUGE_UNIT_POSITIONS[(int)GAUGE_TYPE_MAX][2] = {
+  { 209, 316 },  // top-left position of oil unit (deg C)
+  { 300, 346 },  // top-left position of coolant unit (deg C)
+  { 209, 316 },  // top-left position of oil unit (PSI)
+  { 300, 346 },  // top-left position of fuel unit (PSI)
+  { 209, 316 },  // top-left position of boost unit (PSI)
 };
 // define origins (top left) of each unit image
-const uint16_t GAUGE_UNIT_DIMENSIONS[(int)GAUGE_TYPE_MAX][2] = 
-{
-  { 53, 49 }, // width, height of oil unit (deg C)
-  { 53, 49 }, // width, height of coolant unit (deg C)
-  { 53, 49 }, // width, height of oil unit (PSI)
-  { 53, 49 }, // width, height of fuel unit (PSI)
-  { 53, 49 }, // width, height of boost unit (PSI)
+const uint16_t GAUGE_UNIT_DIMENSIONS[(int)GAUGE_TYPE_MAX][2] = {
+  { 53, 49 },  // width, height of oil unit (deg C)
+  { 53, 49 },  // width, height of coolant unit (deg C)
+  { 53, 49 },  // width, height of oil unit (PSI)
+  { 53, 49 },  // width, height of fuel unit (PSI)
+  { 53, 49 },  // width, height of boost unit (PSI)
 };
-const char GAUGE_UNIT_FILENAMES[(int)GAUGE_TYPE_MAX][32] = 
-{
+const char GAUGE_UNIT_FILENAMES[(int)GAUGE_TYPE_MAX][32] = {
   "degC_unit.bin",
   "degC_unit.bin",
   "PSI_unit.bin",
   "PSI_unit.bin",
   "PSI_unit.bin",
+};
+
+// define origins (top left) of each trip computer icon
+const uint16_t TRIP_ICON_POSITIONS[TRIP_NUM_ICONS][2] = {
+  { 102, 42 },   // top-left position of car icon (trip distance)
+  { 105, 123 },  // top-left position of clock icon (trip time)
+  { 106, 230 },  // top-left position of speedo icon (avg speed)
+  { 111, 335 },  // top-left position of fuel tank icon (trip consumption)
+};
+// define sizes of each trip computer icon
+const uint16_t TRIP_ICON_DIMENSIONS[TRIP_NUM_ICONS][2] = {
+  { 93, 61 },  // width, height of car icon (trip distance)
+  { 87, 87 },  // width, height of clock icon (trip time)
+  { 85, 86 },  // width, height of speedo icon (avg speed)
+  { 75, 84 },  // width, height of fuel tank icon (trip consumption)
+};
+
+const char TRIP_ICON_FILENAMES[TRIP_NUM_ICONS][32] = {
+  "distance_icon.bin",
+  "time_icon.bin",
+  "speed_icon.bin",
+  "fuel_cons_icon.bin",
 };
 
 // Data type to update the gauge from external driver code
@@ -170,72 +174,90 @@ typedef struct
   double DriveCycleFuelUsage = 0;
 
   // IMU values (not yet implemented)
-  double X_accel = 0; 
-  double Y_accel = 0; 
+  double X_accel = 0;
+  double Y_accel = 0;
   double Z_accel = 0;
 } GaugeData;
 
-class Gauge
-{
-  public:
-    Gauge();
-    void begin();
-    int setType(GaugeType type);
-    GaugeType getType();
-    int update(GaugeData data);
-    void printDebugMsg(String s);
-    void setBrightness(uint8_t brightness);
+class Gauge {
+public:
+  Gauge();
+  void begin();
+  int setType(GaugeType type);
+  GaugeType getType();
 
-  private:
-    /* ------------------------------ PRIVATE VARIABLES ------------------------------ */
+  // Functions to set type of gauge
+  // - main gauge w/ vehicle data,
+  // - trip computer,
+  // - (future) G-meter
+  void viewGaugeMain();
+  void viewTripComputer();
 
-    // screen specifics
-    lv_obj_t *_label; // number displayed on screen
-    lv_style_t _label_style; // style for the number displayed
-    lv_obj_t *_main_screen; // active screen -- need to have multiple for different gauge types
+  // update full data struct
+  // Future: individual functions to update the struct?
+  //         would reduce access into internal gauge code
+  int update(GaugeData data);
 
-    // array to refer to image objects
-    lv_obj_t *_gauge_index_icons[GAUGE_NUM_INDICES]; // pointer to image bitMAP_PSIs for gauge indices
-    lv_img_dsc_t _gauge_index_icons_dsc[GAUGE_NUM_INDICES][2]; // pointer to image descriptors
+  void printDebugMsg(String s);
+  void setBrightness(uint8_t brightness);
 
-    // variables for referring to the sensor icon images
-    lv_obj_t *_curr_sensor_icon;
-    lv_img_dsc_t _curr_sensor_icon_dsc;
-    lv_img_dsc_t _gauge_sensor_icons_dsc[(int)GAUGE_TYPE_MAX]; // pointer to image descriptors
-    
-    // variables for referring to the unit images
-    lv_obj_t *_curr_unit_icon;
-    lv_img_dsc_t _curr_unit_icon_dsc;
-    lv_img_dsc_t _gauge_unit_icons_dsc[(int)GAUGE_TYPE_MAX]; // pointer to image descriptors
+private:
+  /* ------------------------------ PRIVATE VARIABLES ------------------------------ */
 
-    char _gaugeState[GAUGE_NUM_INDICES]; // Gauge state - how many indices are lit
-    char value_str[4]; // Gauge value - printed value, up to 3 digits
-    int _gaugeValue_raw; // Raw gauge value
-    GaugeType _gaugeType; // Type of gauge
-    Limits _limits; // Integer limits of gauge
-    GaugeData _data; // Data struct for gauge
+  // screen specifics
+  lv_obj_t *_label;         // number displayed on screen
+  lv_style_t _label_style;  // style for the number displayed
+  lv_obj_t *_main_screen;   // active screen -- need to have multiple for different gauge types
+  lv_obj_t *_trip_computer_screen;
+
+  // array to refer to the 9 indices image objects
+  lv_obj_t *_gauge_index_icons[GAUGE_NUM_INDICES];            // pointer to image bitmaps for gauge indices
+  lv_img_dsc_t _gauge_index_icons_dsc[GAUGE_NUM_INDICES][2];  // pointer to image descriptors
+
+  // variables for referring to the sensor icon images
+  lv_obj_t *_curr_sensor_icon;
+  lv_img_dsc_t _curr_sensor_icon_dsc;
+  lv_img_dsc_t _gauge_sensor_icons_dsc[(int)GAUGE_TYPE_MAX];  // pointer to image descriptors
+
+  // variables for referring to the unit images
+  lv_obj_t *_curr_unit_icon;
+  lv_img_dsc_t _curr_unit_icon_dsc;
+  lv_img_dsc_t _gauge_unit_icons_dsc[(int)GAUGE_TYPE_MAX];  // pointer to image descriptors
+
+  // variables for referring to images only for trip computer (all 4 are drawn simultaneously)
+  lv_obj_t *_trip_comp_icons[TRIP_NUM_ICONS];            // pointer to image bitmaps for gauge indices
+  lv_img_dsc_t _trip_comp_icons_dsc[TRIP_NUM_ICONS];  // pointer to image descriptors
+
+  int _gaugeViewType = DISPLAY_TYPE_GAUGE_MAIN; // display type (standard gauge, trip computer, etc.)
+
+  char _gaugeState[GAUGE_NUM_INDICES];  // Gauge state - how many indices are lit
+  char value_str[4];                    // Gauge value - printed value, up to 4 digits
+  int _gaugeValue_raw;                  // Raw gauge value
+  GaugeType _gaugeType;                 // Type of gauge (which ECU parameter is displayed)
+  Limits _limits;                       // Integer limits of gauge
+  GaugeData _data;                      // Data struct for gauge
 
 
-    /* ------------------------------ PRIVATE FUNCTIONS ------------------------------ */
+  /* ------------------------------ PRIVATE FUNCTIONS ------------------------------ */
 
-    // uint8_t* loadImageDataToPSRAM(const char *path, uint32_t *size);
-    void createGaugeImages(lv_obj_t *parent); // during init, fill out array of image objects
-    void assignGaugeImages(lv_obj_t *parent);
+  // uint8_t* loadImageDataToPSRAM(const char *path, uint32_t *size);
+  void createGaugeImages(int gaugeView);  // during init, fill out array of image objects
+  void assignGaugeIndexImages(char type);
 
-    void paintGauge(int value);
-    void paintIcon(GaugeType type);
-    void paintValue(int value);
-    void paintIndex(int index, char state);
-    void paintIndices(int startIndex, int endIndex, char state);
-    void findNextGaugeState(int value, Limits limits, char* outState);
-    void paintUnit(char unit);
-    void clearIcon();
-    void clearUnit();
-    void clearNumber();
-    void getLimits(int lims[2]);
-    void startupAnimation();
-
+  void paintGauge(int value);
+  void paintIcon(GaugeType type);
+  void paintTripIcons();
+  void paintValue(int value);
+  void paintIndex(int index, char state);
+  void paintIndices(int startIndex, int endIndex, char state);
+  void findNextGaugeState(int value, Limits limits, char *outState);
+  void paintUnit(char unit);
+  void clearIcon();
+  void clearUnit();
+  void clearNumber();
+  void getLimits(int lims[2]);
+  void startupAnimation();
 };
 
 
-#endif // __GAUGE_H
+#endif  // __GAUGE_H

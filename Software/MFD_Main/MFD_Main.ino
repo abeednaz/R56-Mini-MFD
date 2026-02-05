@@ -294,12 +294,22 @@ uint8_t CalculateBrightness() {
 ******************************************************************************/
 
 void setup() {
+  delay(2000);
   Serial.begin(115200);
   Serial.println("Starting...");
 
   // initialize gauge library
   mainGauge.begin();
   mainGauge.update(data);
+
+  // while(1){
+  //   delay(1000);
+  //   mainGauge.viewTripComputer();
+  //   mainGauge.update(data);
+  //   delay(1000);
+  //   mainGauge.viewGaugeMain();
+  //   mainGauge.update(data);
+  // }
 
   // configure ISR for button
   pinMode(BTN_PIN, INPUT);

@@ -32,6 +32,7 @@
 #define ICON_TYPE 1
 #define UNIT_TYPE 2
 #define IND_TYPE  3
+#define TRIP_ICON_TYPE 4
 
 #define BINFILE_HEADER_SIZE 4
 
@@ -166,20 +167,28 @@ namespace ImageDrawing {
       const char (*filenames)[32];
       char subpath[16];
       char buf1[256];
+      int num_icons;
 
       if (type == ICON_TYPE) {
           dims = GAUGE_ICON_DIMENSIONS;
           filenames = GAUGE_ICON_FILENAMES;
+          num_icons = (int)GAUGE_TYPE_MAX;
           strcpy(subpath, "icon/");
       } else if (type == UNIT_TYPE) {
           dims = GAUGE_UNIT_DIMENSIONS;
           filenames = GAUGE_UNIT_FILENAMES;
+          num_icons = (int)GAUGE_TYPE_MAX;
           strcpy(subpath, "unit/");
+      } else if (type == TRIP_ICON_TYPE) {
+          dims = TRIP_ICON_DIMENSIONS;
+          filenames = TRIP_ICON_FILENAMES;
+          num_icons = (int)TRIP_NUM_ICONS;
+          strcpy(subpath, "icon/");
       } else {
           return; // not valid for 1D
       }
-
-      for (int i = 0; i < (int)GAUGE_TYPE_MAX; i++) {
+      
+      for (int i = 0; i < num_icons; i++) {
           lv_img_dsc_t img_dsc;
 
           // construct filepath
@@ -192,7 +201,10 @@ namespace ImageDrawing {
 
           // update array
           img_dsc_1D[i] = img_dsc;
+          
       }
+      // assignGaugeIndexImages(type);
+      
   }
 
   // --- Overload for 2D array (indices) ---
@@ -227,6 +239,8 @@ namespace ImageDrawing {
           img_dsc_2D[i][0] = img_index_off_dsc;
           img_dsc_2D[i][1] = img_index_on_dsc;
       }
+
+      // assignGaugeIndexImages(type);
   }
 
 }
@@ -253,36 +267,68 @@ void Gauge::paintIcon(GaugeType type)
   lv_obj_set_pos(_curr_unit_icon, GAUGE_UNIT_POSITIONS[index][0], GAUGE_UNIT_POSITIONS[index][1]);
 }
 
+void Gauge::paintTripIcons()
+{
+  for (int i = 0; i < TRIP_NUM_ICONS; i++){
+    lv_img_set_src(_trip_comp_icons[i],  &_trip_comp_icons_dsc[i]);
+    lv_obj_set_pos(_trip_comp_icons[i], TRIP_ICON_POSITIONS[i][0], TRIP_ICON_POSITIONS[i][1]);
+  }
+}
+
 // Gauge.createGaugeImages()
 // initialize array of gauge objects
 // Parameters:
 // - *parent: LVGL screen to create the image in
 // Returns:
 // - None
-void Gauge::createGaugeImages(lv_obj_t *parent) {
-  ImageDrawing::Load_Image_Data_To_Descriptors(_gauge_index_icons_dsc, IND_TYPE);
-  ImageDrawing::Load_Image_Data_To_Descriptors(_gauge_sensor_icons_dsc, ICON_TYPE);
-  ImageDrawing::Load_Image_Data_To_Descriptors(_gauge_unit_icons_dsc, UNIT_TYPE);
+void Gauge::createGaugeImages(int gaugeView) {
+  if (gaugeView == DISPLAY_TYPE_GAUGE_MAIN){
+    ImageDrawing::Load_Image_Data_To_Descriptors(_gauge_index_icons_dsc, IND_TYPE);
+    assignGaugeIndexImages(IND_TYPE);
+    ImageDrawing::Load_Image_Data_To_Descriptors(_gauge_sensor_icons_dsc, ICON_TYPE);
+    assignGaugeIndexImages(ICON_TYPE);
+    ImageDrawing::Load_Image_Data_To_Descriptors(_gauge_unit_icons_dsc, UNIT_TYPE);
+    assignGaugeIndexImages(UNIT_TYPE);
+  }
+  else if (gaugeView == DISPLAY_TYPE_TRIP_COMPUTER){
+    ImageDrawing::Load_Image_Data_To_Descriptors(_trip_comp_icons_dsc, TRIP_ICON_TYPE);
+    assignGaugeIndexImages(TRIP_ICON_TYPE);
+  }
 }
 
-// Gauge.assignGaugeImages()
+// Gauge.assignGaugeIndexImages()
 // fill out LVGL object sources/origins for each gauge index
 // Parameters:
 // - *parent: LVGL screen to create the image in
 // Returns:
 // - None
-void Gauge::assignGaugeImages(lv_obj_t *parent)
+void Gauge::assignGaugeIndexImages(char type)
 {
-  // Gauge measurement index images
-  for (int i = 0; i < (sizeof(GAUGE_IND_POSITIONS) / sizeof(uint16_t)) / 2; i++){
-    _gauge_index_icons[i] = lv_img_create(parent);
-    lv_img_set_src(_gauge_index_icons[i], &_gauge_index_icons_dsc[i][0]);
-    lv_obj_set_pos(_gauge_index_icons[i], GAUGE_IND_POSITIONS[i][0], GAUGE_IND_POSITIONS[i][1]);
+  switch(type){
+    case ICON_TYPE:
+      _curr_sensor_icon = lv_img_create(_main_screen);
+      break;
+    case UNIT_TYPE:
+      _curr_unit_icon = lv_img_create(_main_screen);
+      break;
+    case IND_TYPE:
+      // Gauge measurement index images
+      for (int i = 0; i < (sizeof(GAUGE_IND_POSITIONS) / sizeof(uint16_t)) / 2; i++){
+        _gauge_index_icons[i] = lv_img_create(_main_screen);
+        lv_img_set_src(_gauge_index_icons[i], &_gauge_index_icons_dsc[i][0]);
+        lv_obj_set_pos(_gauge_index_icons[i], GAUGE_IND_POSITIONS[i][0], GAUGE_IND_POSITIONS[i][1]);
+      }
+      break;
+    case TRIP_ICON_TYPE:
+      for (int i = 0; i < TRIP_NUM_ICONS; i++){
+        _trip_comp_icons[i] = lv_img_create(_trip_computer_screen);
+      }
+      break;
   }
+  
 
-  _curr_sensor_icon = lv_img_create(parent);
-  _curr_unit_icon = lv_img_create(parent);
-
+  // _curr_sensor_icon = lv_img_create(parent);
+  // _curr_unit_icon = lv_img_create(parent);
 }
 
 // Gauge.paintIndex()
@@ -442,10 +488,17 @@ void Gauge::begin() {
 
   // Configure main screen
   // future note: multiple screens needed for having G meter GUI, trip insights GUI
-  _main_screen = lv_scr_act(); 
+  _main_screen = lv_obj_create(NULL); 
+  _trip_computer_screen = lv_obj_create(NULL); 
+  viewGaugeMain();
+
   lv_obj_set_style_bg_color(_main_screen, lv_color_hsv_to_rgb(11, 100, 25), LV_PART_MAIN);
-  createGaugeImages(_main_screen);
-  assignGaugeImages(_main_screen);
+  lv_obj_set_style_bg_color(_trip_computer_screen, lv_color_hsv_to_rgb(11, 100, 25), LV_PART_MAIN);
+
+  createGaugeImages(DISPLAY_TYPE_GAUGE_MAIN);
+  // assignGaugeIndexImages(_main_screen);
+
+  createGaugeImages(DISPLAY_TYPE_TRIP_COMPUTER);
 
   // font definition
   lv_font_t * MINI_font_numbers;
@@ -466,6 +519,15 @@ void Gauge::begin() {
 
   // initialize gauge as an oil temp gauge
   setType(GAUGE_TYPE_OIL_TEMP);
+
+  paintTripIcons();
+  
+  // while(1){
+  //   delay(5000);
+  //   viewTripComputer();
+  //   delay(5000);
+  //   viewGaugeMain();
+  // }
 
   // while(1); // TEMPORARY STOP
 }
@@ -500,6 +562,15 @@ int Gauge::setType(GaugeType type)
 GaugeType Gauge::getType()
 {
   return _gaugeType;
+}
+
+void Gauge::viewGaugeMain()
+{
+  lv_scr_load(_main_screen);
+}
+void Gauge::viewTripComputer()
+{
+  lv_scr_load(_trip_computer_screen);
 }
 
 // Gauge.update()
